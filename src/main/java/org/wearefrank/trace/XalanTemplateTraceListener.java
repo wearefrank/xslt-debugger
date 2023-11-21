@@ -16,11 +16,9 @@
 package org.wearefrank.trace;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.apache.xalan.templates.Constants;
 import org.apache.xalan.templates.ElemTemplate;
 import org.apache.xalan.templates.ElemTemplateElement;
-import org.apache.xalan.templates.ElemTextLiteral;
 import org.apache.xalan.trace.*;
 import org.apache.xml.dtm.DTM;
 import org.apache.xml.dtm.ref.DTMNodeProxy;
