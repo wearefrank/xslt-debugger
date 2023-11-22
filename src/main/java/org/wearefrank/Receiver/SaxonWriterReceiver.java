@@ -67,7 +67,6 @@ public class SaxonWriterReceiver implements Receiver {
         }
 
         writer.append(">");
-        writer.append("\n");
         this.endElement.push("</" + elemName.getDisplayName() + ">");
     }
 
@@ -75,7 +74,6 @@ public class SaxonWriterReceiver implements Receiver {
     public void endElement() throws XPathException {
         if(!endElement.isEmpty()){
             writer.append(endElement.pop());
-            writer.append("\n");
         }
     }
 
@@ -86,7 +84,7 @@ public class SaxonWriterReceiver implements Receiver {
 
     @Override
     public void processingInstruction(String name, CharSequence data, Location location, int properties) throws XPathException {
-        this.writer.append(name + "           " + data);
+        //writer.append(name + " " + data);
     }
 
     @Override

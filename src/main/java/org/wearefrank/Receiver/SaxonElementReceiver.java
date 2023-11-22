@@ -71,12 +71,12 @@ public class SaxonElementReceiver implements Receiver {
 
     @Override
     public void processingInstruction(String name, CharSequence data, Location location, int properties) throws XPathException {
-        System.out.println("processingInstruction: " + name + "  " + data);
+        traceListener.addElementContext("processingInstruction: " + name + "  " + data);
     }
 
     @Override
     public void comment(CharSequence content, Location location, int properties) throws XPathException {
-        System.out.println("COMMENT: " + content);
+        traceListener.addElementContext("COMMENT: " + content);
     }
 
     @Override
