@@ -175,10 +175,10 @@ public class SaxonTemplateTraceListener extends StandardDiagnostics implements T
             selectedTrace.addTraceContext(trace + "\n");
         }
 
-        if(!context.getContextItem().getStringValue().isEmpty()){
-            String contextOutput = "CONTEXT: " + context.getContextItem().getStringValue() + "\n";
-            selectedTrace.addTraceContext(contextOutput);
-        }
+//        if(!context.getContextItem().getStringValue().isEmpty()){
+//            String contextOutput = "CONTEXT: " + context.getContextItem().getStringValue() + "\n";
+//            selectedTrace.addTraceContext(contextOutput);
+//        }
     }
 
     private String CreateTrace(Traceable info, String tag, Map<String, Object> properties, boolean useIndents){
@@ -363,5 +363,9 @@ public class SaxonTemplateTraceListener extends StandardDiagnostics implements T
     @Override
     @Deprecated
     public void setOutputDestination(Logger stream) {
+    }
+
+    public void addElementContext(String context){
+        selectedTrace.addTraceContext(context + "\n");
     }
 }
