@@ -51,6 +51,7 @@ public class SaxonWriterReceiver implements Receiver {
 
     @Override
     public void setUnparsedEntity(String name, String systemID, String publicID) throws XPathException {
+        System.out.println(name);
         writer.append(name);
     }
 

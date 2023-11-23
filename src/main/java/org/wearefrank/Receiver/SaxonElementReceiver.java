@@ -35,34 +35,24 @@ public class SaxonElementReceiver implements Receiver {
 
     @Override
     public void open() throws XPathException {
-        //do nothing
     }
 
     @Override
     public void startDocument(int properties) throws XPathException {
-        //do nothing
     }
 
     @Override
     public void endDocument() throws XPathException {
-        //do nothing
     }
 
     @Override
     public void setUnparsedEntity(String name, String systemID, String publicID) throws XPathException {
-        //do nothing
+        traceListener.addElementContext(systemID + ": " + name);
     }
 
     @Override
     public void startElement(NodeName elemName, SchemaType type, AttributeMap attributes, NamespaceMap namespaces, Location location, int properties) throws XPathException {
         StringWriter writer = new StringWriter();
-
-        writer.append("STARTELEMENT ");
-        if(location.getSystemId() != null){
-            File file = new File(location.getSystemId());
-            writer.append(file.getName());
-        }
-        writer.append(" Line #" + location.getLineNumber() + ", Column #" + location.getColumnNumber() + ": ");
 
         writer.append("<");
         writer.append(elemName.getDisplayName());
@@ -73,11 +63,17 @@ public class SaxonElementReceiver implements Receiver {
             writer.append(attributes.itemAt(i).getValue());
             writer.append("\"");
         }
-
         writer.append(">");
 
+        if(location.getSystemId() != null){
+            File file = new File(location.getSystemId());
+            traceListener.addElementContext(file.getName() + " Line #" + location.getLineNumber() + ", Column #" + location.getColumnNumber() + ": " + writer);
+        }else{
+            traceListener.addElementContext("null Line #" + location.getLineNumber() + ", Column #" + location.getColumnNumber() + ": " + writer);
+        }
 
-        traceListener.addElementContext(writer.toString());
+
+        traceListener.addElementContext("STARTELEMENT: " + writer);
         endElement.push("ENDELEMENT: </" + elemName.getDisplayName() + ">");
     }
 
