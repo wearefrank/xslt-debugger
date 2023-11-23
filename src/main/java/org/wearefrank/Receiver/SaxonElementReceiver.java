@@ -12,6 +12,8 @@ import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.type.SchemaType;
 import org.wearefrank.trace.SaxonTemplateTraceListener;
 
+import java.io.File;
+import java.io.StringWriter;
 import java.util.Stack;
 
 public class SaxonElementReceiver implements Receiver {
@@ -48,12 +50,34 @@ public class SaxonElementReceiver implements Receiver {
 
     @Override
     public void setUnparsedEntity(String name, String systemID, String publicID) throws XPathException {
-        System.out.println("setUNPARSEDENTITY: " + name);
+        //do nothing
     }
 
     @Override
     public void startElement(NodeName elemName, SchemaType type, AttributeMap attributes, NamespaceMap namespaces, Location location, int properties) throws XPathException {
-        traceListener.addElementContext("STARTELEMENT: " + "<" + elemName.getDisplayName() + ">");
+        StringWriter writer = new StringWriter();
+
+        writer.append("STARTELEMENT ");
+        if(location.getSystemId() != null){
+            File file = new File(location.getSystemId());
+            writer.append(file.getName());
+        }
+        writer.append(" Line #" + location.getLineNumber() + ", Column #" + location.getColumnNumber() + ": ");
+
+        writer.append("<");
+        writer.append(elemName.getDisplayName());
+        for (int i = 0; i < attributes.size(); i++) {
+            writer.append(" ");
+            writer.append(attributes.itemAt(i).getNodeName().getDisplayName());
+            writer.append("=\"");
+            writer.append(attributes.itemAt(i).getValue());
+            writer.append("\"");
+        }
+
+        writer.append(">");
+
+
+        traceListener.addElementContext(writer.toString());
         endElement.push("ENDELEMENT: </" + elemName.getDisplayName() + ">");
     }
 

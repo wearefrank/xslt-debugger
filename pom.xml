@@ -47,7 +47,10 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
   <build>
+    <defaultGoal>clean install</defaultGoal>
+    <finalName>${artifactId}-${version}</finalName>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
