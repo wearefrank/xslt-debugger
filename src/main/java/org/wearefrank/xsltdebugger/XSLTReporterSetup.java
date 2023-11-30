@@ -1,16 +1,16 @@
-package org.wearefrank;
+package org.wearefrank.xsltdebugger;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.wearefrank.Receiver.SaxonElementReceiver;
-import org.wearefrank.Receiver.SaxonOutputReceiver;
-import org.wearefrank.Receiver.SaxonWriterReceiver;
-import org.wearefrank.trace.LadybugTraceListener;
-import org.wearefrank.trace.SaxonTemplateTraceListener;
-import org.wearefrank.trace.XalanTemplateTraceListener;
+
+import org.wearefrank.xsltdebugger.receiver.SaxonElementReceiver;
+import org.wearefrank.xsltdebugger.receiver.SaxonOutputReceiver;
+import org.wearefrank.xsltdebugger.receiver.SaxonWriterReceiver;
+import org.wearefrank.xsltdebugger.trace.LadybugTraceListener;
+import org.wearefrank.xsltdebugger.trace.SaxonTemplateTraceListener;
+import org.wearefrank.xsltdebugger.trace.XalanTemplateTraceListener;
 
 import javax.xml.transform.Result;
-import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.File;
