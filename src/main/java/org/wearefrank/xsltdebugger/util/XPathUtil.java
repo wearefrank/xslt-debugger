@@ -15,7 +15,7 @@
 */
 
 
-package org.wearefrank.util;
+package org.wearefrank.xsltdebugger.util;
 
 import net.sf.saxon.xpath.XPathEvaluator;
 import org.w3c.dom.Document;
