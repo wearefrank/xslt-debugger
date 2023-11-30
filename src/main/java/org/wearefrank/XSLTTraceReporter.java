@@ -1,4 +1,4 @@
-package org.wearefrank;/*
+/*
    Copyright 2023 WeAreFrank!
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,11 +14,15 @@ package org.wearefrank;/*
    limitations under the License.
 */
 
-import org.wearefrank.trace.TemplateTrace;
-import nl.nn.testtool.TestTool;
-import nl.nn.testtool.util.DocumentUtil;
 
-import nl.nn.testtool.util.XmlUtil;
+package org.wearefrank;
+
+import org.wearefrank.util.DocumentUtil;
+import org.wearefrank.util.XPathUtil;
+import org.wearefrank.trace.TemplateTrace;
+
+import nl.nn.testtool.TestTool;
+
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
@@ -96,9 +100,9 @@ public class XSLTTraceReporter {
     private void printImportedXsl() {
         try {
             Document xslDocument = DocumentUtil.buildDocument(xslFile);
-            if(!XmlUtil.fileHasNode("import", xslDocument)) return; //If there are no import nodes present in the file, return.
+            if(!XPathUtil.fileHasNode("import", xslDocument)) return; //If there are no import nodes present in the file, return.
 
-            NodeList nodeList = XmlUtil.getNodesByXPath("//*[local-name()='import']",xslDocument);
+            NodeList nodeList = XPathUtil.getNodesByXPath("//*[local-name()='import']",xslDocument);
             testTool.startpoint(correlationId, xslFile.getName(), "Imported XSL", "Imported XSL files");
             // Loop over all the 'import' nodes (each node references 1 XSL file in its 'href' attribute)
             for (int i = 0; i < nodeList.getLength(); i++) {
@@ -190,7 +194,7 @@ public class XSLTTraceReporter {
         for (File file : allXSLFiles) {
             boolean hasMatchAttribute = false;
             Document doc = DocumentUtil.buildDocument(file);
-            NodeList nodeList = XmlUtil.getNodesByXPath("//*[local-name()='template']", doc);
+            NodeList nodeList = XPathUtil.getNodesByXPath("//*[local-name()='template']", doc);
             StringWriter result = new StringWriter();
 
             for (int i = 0; i < nodeList.getLength(); i++) {
