@@ -17,17 +17,23 @@
 
 package org.wearefrank.xsltdebugger;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.wearefrank.xsltdebugger.util.DocumentUtil;
 import org.wearefrank.xsltdebugger.util.XPathUtil;
 import org.wearefrank.xsltdebugger.trace.TemplateTrace;
 
 import nl.nn.testtool.TestTool;
 
-import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
-import javax.xml.xpath.*;
-import java.io.*;
+import javax.xml.xpath.XPathExpressionException;
+import java.io.File;
+import java.io.IOException;
+import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;

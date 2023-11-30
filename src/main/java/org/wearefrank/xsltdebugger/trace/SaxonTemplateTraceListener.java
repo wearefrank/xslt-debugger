@@ -15,7 +15,6 @@
 */
 package org.wearefrank.xsltdebugger.trace;
 
-
 import lombok.Getter;
 
 import net.sf.saxon.Controller;
@@ -23,7 +22,14 @@ import net.sf.saxon.Version;
 import net.sf.saxon.expr.Expression;
 import net.sf.saxon.expr.LetExpression;
 import net.sf.saxon.expr.XPathContext;
-import net.sf.saxon.expr.instruct.*;
+import net.sf.saxon.expr.instruct.FixedAttribute;
+import net.sf.saxon.expr.instruct.FixedElement;
+import net.sf.saxon.expr.instruct.GlobalParam;
+import net.sf.saxon.expr.instruct.GlobalVariable;
+import net.sf.saxon.expr.instruct.Instruction;
+import net.sf.saxon.expr.instruct.NamedTemplate;
+import net.sf.saxon.expr.instruct.TemplateRule;
+import net.sf.saxon.expr.instruct.UserFunction;
 import net.sf.saxon.functions.Trace;
 import net.sf.saxon.lib.Logger;
 import net.sf.saxon.lib.NamespaceConstant;
@@ -43,6 +49,7 @@ import net.sf.saxon.value.Whitespace;
 
 import java.util.Map;
 import java.util.Objects;
+
 
 
 /**The SaxonTemplateTraceListener is a trace listener meant for tracing the transform of XSLT.
