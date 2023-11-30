@@ -15,7 +15,7 @@
 */
 
 
-package org.wearefrank.util;
+package org.wearefrank.xsltdebugger.util;
 
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;

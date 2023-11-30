@@ -1,4 +1,4 @@
-package org.wearefrank.Receiver;
+package org.wearefrank.xsltdebugger.receiver;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -10,14 +10,13 @@ import net.sf.saxon.om.NodeName;
 import net.sf.saxon.s9api.Location;
 import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.type.SchemaType;
-import org.wearefrank.trace.SaxonTemplateTraceListener;
+import org.wearefrank.xsltdebugger.trace.SaxonTemplateTraceListener;
 
-import java.io.IOException;
+import java.io.File;
 import java.io.StringWriter;
-import java.util.Iterator;
 import java.util.Stack;
 
-public class SaxonWriterReceiver implements Receiver {
+public class SaxonElementReceiver implements Receiver {
     @Getter
     @Setter
     private PipelineConfiguration pipelineConfiguration;
@@ -27,36 +26,34 @@ public class SaxonWriterReceiver implements Receiver {
 
     private Stack<String> endElement;
 
-    private final StringWriter writer;
+    private SaxonTemplateTraceListener traceListener;
 
-    public SaxonWriterReceiver(StringWriter writer){
-        this.writer = writer;
+    public SaxonElementReceiver(SaxonTemplateTraceListener traceListener){
+        this.traceListener = traceListener;
         this.endElement = new Stack<>();
     }
 
     @Override
     public void open() throws XPathException {
-        //do nothing
     }
 
     @Override
     public void startDocument(int properties) throws XPathException {
-        //do nothing
     }
 
     @Override
     public void endDocument() throws XPathException {
-        //do nothing
     }
 
     @Override
     public void setUnparsedEntity(String name, String systemID, String publicID) throws XPathException {
-        System.out.println(name);
-        writer.append(name);
+        traceListener.addElementContext(systemID + ": " + name);
     }
 
     @Override
     public void startElement(NodeName elemName, SchemaType type, AttributeMap attributes, NamespaceMap namespaces, Location location, int properties) throws XPathException {
+        StringWriter writer = new StringWriter();
+
         writer.append("<");
         writer.append(elemName.getDisplayName());
         for (int i = 0; i < attributes.size(); i++) {
@@ -66,34 +63,44 @@ public class SaxonWriterReceiver implements Receiver {
             writer.append(attributes.itemAt(i).getValue());
             writer.append("\"");
         }
-
         writer.append(">");
-        this.endElement.push("</" + elemName.getDisplayName() + ">");
+
+        if(location.getSystemId() != null){
+            File file = new File(location.getSystemId());
+            traceListener.addElementContext(file.getName() + " Line #" + location.getLineNumber() + ", Column #" + location.getColumnNumber() + ": " + writer);
+        }else{
+            traceListener.addElementContext("null Line #" + location.getLineNumber() + ", Column #" + location.getColumnNumber() + ": " + writer);
+        }
+
+
+        traceListener.addElementContext("STARTELEMENT: " + writer);
+        endElement.push("ENDELEMENT: </" + elemName.getDisplayName() + ">");
     }
 
     @Override
     public void endElement() throws XPathException {
-        if(!endElement.isEmpty()){
-            writer.append(endElement.pop());
+        if(!endElement.isEmpty()) {
+            traceListener.addElementContext(endElement.pop());
         }
     }
 
     @Override
     public void characters(CharSequence chars, Location location, int properties) throws XPathException {
-        writer.append(chars);
+        traceListener.addElementContext("CONTEXT: " + chars);
     }
 
     @Override
     public void processingInstruction(String name, CharSequence data, Location location, int properties) throws XPathException {
-        //writer.append(name + " " + data);
+        traceListener.addElementContext("processingInstruction: " + name + "  " + data);
     }
 
     @Override
     public void comment(CharSequence content, Location location, int properties) throws XPathException {
-        writer.append(content);
+        traceListener.addElementContext("COMMENT: " + content);
     }
 
     @Override
     public void close() throws XPathException {
+        //do nothing
     }
 }

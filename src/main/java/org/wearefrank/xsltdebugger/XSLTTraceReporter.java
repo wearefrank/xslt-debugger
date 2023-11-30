@@ -15,11 +15,11 @@
 */
 
 
-package org.wearefrank;
+package org.wearefrank.xsltdebugger;
 
-import org.wearefrank.util.DocumentUtil;
-import org.wearefrank.util.XPathUtil;
-import org.wearefrank.trace.TemplateTrace;
+import org.wearefrank.xsltdebugger.util.DocumentUtil;
+import org.wearefrank.xsltdebugger.util.XPathUtil;
+import org.wearefrank.xsltdebugger.trace.TemplateTrace;
 
 import nl.nn.testtool.TestTool;
 

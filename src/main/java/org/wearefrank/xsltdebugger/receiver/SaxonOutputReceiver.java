@@ -1,8 +1,7 @@
-package org.wearefrank.Receiver;
+package org.wearefrank.xsltdebugger.receiver;
 
 import lombok.Getter;
 import lombok.Setter;
-import net.sf.saxon.event.PipelineConfiguration;
 import net.sf.saxon.event.ProxyReceiver;
 import net.sf.saxon.event.Receiver;
 import net.sf.saxon.om.AttributeMap;
