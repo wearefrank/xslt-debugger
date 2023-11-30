@@ -15,7 +15,7 @@
 */
 package org.wearefrank.xsltdebugger.trace;
 
-
+import lombok.Getter;
 
 import net.sf.saxon.Controller;
 import net.sf.saxon.Version;
@@ -49,8 +49,6 @@ import net.sf.saxon.value.Whitespace;
 
 import java.util.Map;
 import java.util.Objects;
-
-import lombok.Getter;
 
 
 

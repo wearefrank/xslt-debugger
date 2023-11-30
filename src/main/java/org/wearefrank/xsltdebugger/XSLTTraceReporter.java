@@ -60,8 +60,8 @@ public class XSLTTraceReporter {
         this.correlationId = correlationId;
     }
 
-    public static void initiate(TestTool testTool, File xmlFile, File xslFile, TemplateTrace rootTrace, String xsltResult, String correlationId, String reportName){
-        XSLTTraceReporter reporter = new XSLTTraceReporter(testTool, xmlFile, xslFile, rootTrace, xsltResult, correlationId);
+    public static void initiate(TestTool testTool, XSLTReporterSetup reporterSetup, String correlationId, String reportName){
+        XSLTTraceReporter reporter = new XSLTTraceReporter(testTool, reporterSetup.getXmlFile(), reporterSetup.getXslFile(), reporterSetup.getTraceListener().getRootTrace(), reporterSetup.getWriter().toString(), correlationId);
         testTool.startpoint(correlationId, null, reportName, "XSLT Trace");
         reporter.start();
         testTool.endpoint(correlationId, null, reportName, "XSLT Trace");
