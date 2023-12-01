@@ -1,47 +1,69 @@
 <?xml version="1.0" encoding="UTF-8"?><html>
 <body>
 <h2>My CD Collection</h2>
+
+
 <p>
-Title: <span style="color:#ff0000">Empire Burlesque</span>
+        Title: <span style="color:#ff0000">Empire Burlesque</span>
 <br>
-Artist: <span style="color:#00ff00">Bob Dylan</span>
+        Artist: <span style="color:#00ff00">Bob Dylan</span>
 <br>
 </p>
+
+
+
 <p>
-Title: <span style="color:#ff0000">Empire Burlesque</span>
+        Title: <span style="color:#ff0000">Empire Burlesque</span>
 <br>
-Artist: <span style="color:#00ff00">Bob Dylan</span>
+        Artist: <span style="color:#00ff00">Bob Dylan</span>
 <br>
 </p>
+
+
+
 <p>
-Title: <span style="color:#ff0000">Empire Burlesque</span>
+        Title: <span style="color:#ff0000">Empire Burlesque</span>
 <br>
-Artist: <span style="color:#00ff00">Bob Dylan</span>
+        Artist: <span style="color:#00ff00">Bob Dylan</span>
 <br>
 </p>
+
+
+
 <p>
-Title: <span style="color:#ff0000">Empire Burlesque</span>
+        Title: <span style="color:#ff0000">Empire Burlesque</span>
 <br>
-Artist: <span style="color:#00ff00">Bob Dylan</span>
+        Artist: <span style="color:#00ff00">Bob Dylan</span>
 <br>
 </p>
+
+
+
 <p>
-Title: <span style="color:#ff0000">Empire Burlesque</span>
+        Title: <span style="color:#ff0000">Empire Burlesque</span>
 <br>
-Artist: <span style="color:#00ff00">Bob Dylan</span>
+        Artist: <span style="color:#00ff00">Bob Dylan</span>
 <br>
 </p>
+
+
+
 <p>
-Title: <span style="color:#ff0000">Empire Burlesque</span>
+        Title: <span style="color:#ff0000">Empire Burlesque</span>
 <br>
-Artist: <span style="color:#00ff00">Bob Dylan</span>
+        Artist: <span style="color:#00ff00">Bob Dylan</span>
 <br>
 </p>
+
+
+
 <p>
-Title: <span style="color:#ff0000">Empire Burlesque</span>
+        Title: <span style="color:#ff0000">Empire Burlesque</span>
 <br>
-Artist: <span style="color:#00ff00">Bob Dylan</span>
+        Artist: <span style="color:#00ff00">Bob Dylan</span>
 <br>
 </p>
+
+
 </body>
 </html>
