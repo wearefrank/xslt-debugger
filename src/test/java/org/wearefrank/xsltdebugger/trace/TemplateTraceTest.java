@@ -16,20 +16,20 @@ class TemplateTraceTest {
     }
 
     @Test
-    void addChildtrace() {
+    void shouldAddChildtrace() {
         rootTrace.addChildtrace(new TemplateTrace());
         assertNotNull(rootTrace.getChildTraces().get(2));
     }
 
     @Test
-    void addTraceContext() {
+    void shouldAddTraceContext() {
         TemplateTrace trace = new TemplateTrace();
         trace.addTraceContext("inserted data");
         assertEquals("inserted data", trace.getTraceContext().get(0));
     }
 
     @Test
-    void getWholeTraceWhenTrue() {
+    void shouldGetWholeTraceWhenTrue() {
         TemplateTrace trace = new TemplateTrace("match_name", "system_id_string", "template_trace", "id_name", rootTrace);
         trace.addTraceContext("\ntest data");
         String actualTrace = trace.getWholeTrace(true);
@@ -40,7 +40,7 @@ class TemplateTraceTest {
     }
 
     @Test
-    void getWholeTraceWhenFalse(){
+    void shouldGetWholeTraceWhenFalse(){
         TemplateTrace trace = new TemplateTrace("match_name", "system_id_string", "template_trace", "id_name", rootTrace);
         trace.addTraceContext("\ntest data");
         String actualTrace = trace.getWholeTrace(false);
@@ -49,36 +49,33 @@ class TemplateTraceTest {
     }
 
     @Test
-    void getTraceId() {
+    void shouldGetTraceId() {
         TemplateTrace trace = new TemplateTrace("match_name", "system_id_string", "template_trace", "id_name", rootTrace);
         assertEquals("id_name", trace.getTraceId());
     }
 
     @Test
-    void getParentTrace() {
+    void shouldGetParentTrace() {
         TemplateTrace parentTrace = new TemplateTrace("match_name", "system_id_string", "template_trace", "id_name", rootTrace);
         TemplateTrace childTrace = new TemplateTrace("match_name", "system_id_string", "template_trace", "different id_name", parentTrace);
         parentTrace.addChildtrace(childTrace);
-
         assertEquals(parentTrace.getTraceId(), childTrace.getParentTrace().getTraceId());
     }
 
     @Test
-    void getTemplateMatch() {
+    void shouldGetTemplateMatch() {
         TemplateTrace trace = new TemplateTrace("match_name", "system_id_string", "template_trace", "id_name", rootTrace);
-
         assertEquals("match_name", trace.getTemplateMatch());
     }
 
     @Test
-    void getTemplateTrace() {
+    void shouldGetTemplateTrace() {
         TemplateTrace trace = new TemplateTrace("match_name", "system_id_string", "template_trace", "id_name", rootTrace);
-
         assertEquals("template_trace", trace.getTemplateTrace());
     }
 
     @Test
-    void getSystemId() {
+    void shouldGetSystemId() {
         TemplateTrace trace = new TemplateTrace("match_name", "system_id_string", "template_trace", "id_name", rootTrace);
         assertEquals("system_id_string", trace.getSystemId());
     }
