@@ -19,11 +19,14 @@ package org.wearefrank.xsltdebugger.util;
 
 import net.sf.saxon.xpath.XPathEvaluator;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class XPathUtil {
     private static final XPathEvaluator xpathEvaluator = new XPathEvaluator();
@@ -43,9 +46,9 @@ public class XPathUtil {
         try {
             if (nodeName.contains(":")) {
                 //if the given node has a namespace prefix, strip the prefix.
-                return getNodesByXPath("//*[local-name()='" + nodeName.substring(nodeName.indexOf(":") + 1) + "']", doc).getLength() != 0;
+                return getNodesByXPath("//*[local-name()='" + nodeName.substring(nodeName.indexOf(":") + 1) + "']", doc).isEmpty();
             }
-            return getNodesByXPath("//*[local-name()='" + nodeName + "']", doc).getLength() != 0;
+            return getNodesByXPath("//*[local-name()='" + nodeName + "']", doc).isEmpty();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -59,7 +62,15 @@ public class XPathUtil {
      * @return return the nodelist from xPathExpression
      * @throws XPathExpressionException if there is an error in the XPath expression
      */
-    public static NodeList getNodesByXPath(String xPathExpression, Document doc) throws XPathExpressionException {
-        return (NodeList) createXPathExpression(xPathExpression).evaluate(doc.getDocumentElement(), XPathConstants.NODESET);
+    public static List<Node> getNodesByXPath(String xPathExpression, Document doc) throws XPathExpressionException {
+        return nodeListToList((NodeList)createXPathExpression(xPathExpression).evaluate(doc.getDocumentElement(), XPathConstants.NODESET));
+    }
+
+    private static List<Node> nodeListToList(NodeList startList) {
+        List<Node> newList = new ArrayList<>();
+        for (int i = 0; i < startList.getLength(); i++) {
+            newList.add(startList.item(i));
+        }
+        return newList;
     }
 }
