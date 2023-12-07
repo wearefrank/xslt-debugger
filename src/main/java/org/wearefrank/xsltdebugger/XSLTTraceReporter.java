@@ -169,23 +169,22 @@ public class XSLTTraceReporter {
      */
     private void loopThroughAllTemplates(TemplateTrace trace) {
         try {
-            System.out.println(trace.getWholeTrace(true));
-            if (trace.getChildTraces().isEmpty()) return;
-            if (!trace.isABuiltInTemplate()) {
-                for (TemplateTrace templateTrace : trace.getChildTraces()) {
-                        testTool.startpoint(correlationId, templateTrace.getTraceId(), "template match=" + templateTrace.getTemplateMatch(), getTemplateXML(templateTrace));
-                        printTemplateXsl(templateTrace);
-                        loopThroughAllTemplates(templateTrace);
-                        testTool.endpoint(correlationId, templateTrace.getTraceId(), "template match=" + templateTrace.getTemplateMatch(), templateTrace.getWholeTrace(false));
-
-                    //todo: save this code until solution for optional built-in-rules has been made
-    //                else {
-    //                    testTool.startpoint(correlationId, templateTrace.getTraceId(), "built-in-rule match=" + templateTrace.getTemplateMatch() + " node=" + templateTrace.getSelectedNode(), templateTrace.getWholeTrace(false));
-    //                    printTemplateXsl(templateTrace.getTemplateMatch());
-    //                    loopThroughAllTemplates(templateTrace);
-    //                    testTool.endpoint(correlationId, templateTrace.getTraceId(), "built-in-rule match=" + templateTrace.getTemplateMatch() + " node=" + templateTrace.getSelectedNode(), templateTrace.getWholeTrace(false));
-    //                }
+            if(trace.getChildTraces().isEmpty()) return;
+            for (TemplateTrace templateTrace : trace.getChildTraces()) {
+                if(!templateTrace.isABuiltInTemplate()) {
+                    testTool.startpoint(correlationId, templateTrace.getTraceId(), "template match=" + templateTrace.getTemplateMatch(), printTemplateXml(templateTrace));
+                    printTemplateXsl(templateTrace);
+                    loopThroughAllTemplates(templateTrace);
+                    testTool.endpoint(correlationId, templateTrace.getTraceId(), "template match=" + templateTrace.getTemplateMatch(), templateTrace.getWholeTrace(false));
                 }
+
+                //todo: save this code until solution for optional built-in-rules has been made
+//                else {
+//                    testTool.startpoint(correlationId, templateTrace.getTraceId(), "built-in-rule match=" + templateTrace.getTemplateMatch() + " node=" + templateTrace.getSelectedNode(), templateTrace.getWholeTrace(false));
+//                    printTemplateXsl(templateTrace.getTemplateMatch());
+//                    loopThroughAllTemplates(templateTrace);
+//                    testTool.endpoint(correlationId, templateTrace.getTraceId(), "built-in-rule match=" + templateTrace.getTemplateMatch() + " node=" + templateTrace.getSelectedNode(), templateTrace.getWholeTrace(false));
+//                }
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -221,18 +220,18 @@ public class XSLTTraceReporter {
     }
 
     /**
-     * TODO: get input XML of the XSLT step using XPath
      * Shows the affected XML of the XSLT trace
      * */
-    private String getTemplateXML(TemplateTrace trace) {
+    private String printTemplateXml(TemplateTrace trace) {
         try {
             Document doc = DocumentUtil.buildDocument(xmlFile);
             List<Node> nodeList =  XPathUtil.getNodesByXPath(trace.getTemplateMatch(), doc);
             StringWriter result = new StringWriter();
 
             for (Node node: nodeList) {
+                System.out.println(node.getNodeName());
                 StringBuilder stringBuilder = new StringBuilder();
-                getNodeIndentation(stringBuilder, node, 0, true);
+                getNodeIndentation(stringBuilder, node, 0, false);
                 result.append(stringBuilder).append("\n");
             }
             return result.toString();
