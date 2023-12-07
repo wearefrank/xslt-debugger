@@ -13,7 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-package org.wearefrank.xsltdebugger.trace;
+package org.wearefrank.xsltdebugger.trace.listener;
 
 import lombok.Getter;
 
@@ -29,6 +29,8 @@ import org.apache.xml.dtm.DTM;
 import org.apache.xml.dtm.ref.DTMNodeProxy;
 import org.apache.xml.serializer.SerializerTrace;
 import org.w3c.dom.Node;
+import org.wearefrank.xsltdebugger.trace.TemplateTrace;
+import org.wearefrank.xsltdebugger.trace.XalanTemplateTrace;
 
 import javax.xml.transform.SourceLocator;
 import javax.xml.transform.TransformerException;
@@ -38,7 +40,7 @@ import java.util.Objects;
 public class XalanTemplateTraceListener implements TraceListenerEx2, LadybugTraceListener {
 
     @Getter
-    private final TemplateTrace rootTrace = new TemplateTrace();
+    private final TemplateTrace rootTrace = new XalanTemplateTrace();
 
     private TemplateTrace selectedTrace;
 
@@ -131,17 +133,17 @@ public class XalanTemplateTraceListener implements TraceListenerEx2, LadybugTrac
                     //to the trace object to later be reviewed to see if the selected trace needs to be changed
                     //to the parent trace
                     String traceId = et.getLineNumber() + "_" + et.getColumnNumber() + "_" + et.getSystemId();
-                    TemplateTrace templateTrace = new TemplateTrace(et.getMatch().getPatternString(), et.getSystemId(), trace.toString(), traceId, selectedTrace);
+                    XalanTemplateTrace xalanTemplateTrace = new XalanTemplateTrace(et.getMatch().getPatternString(), et.getSystemId(), trace.toString(), traceId, selectedTrace);
 
-                    templateTrace.setLineNumber(et.getLineNumber());
-                    templateTrace.setColumnNumber(et.getColumnNumber());
+                    xalanTemplateTrace.setLineNumber(et.getLineNumber());
+                    xalanTemplateTrace.setColumnNumber(et.getColumnNumber());
 
                     if(isBuiltIn){
-                        templateTrace.setABuiltInTemplate(true);
+                        xalanTemplateTrace.setABuiltInTemplate(true);
                     }
-                    selectedTrace.addChildtrace(templateTrace);
+                    selectedTrace.addChildTrace(xalanTemplateTrace);
                     if(!isBuiltIn) {
-                        selectedTrace = templateTrace;
+                        selectedTrace = xalanTemplateTrace;
                     }
                 }
                 break;
@@ -332,7 +334,7 @@ public class XalanTemplateTraceListener implements TraceListenerEx2, LadybugTrac
                 String traceId = et.getLineNumber() + "_" + et.getColumnNumber() + "_" + et.getSystemId();
 
                 if(Objects.equals(selectedTrace.getTraceId(), traceId)){
-                    selectedTrace = selectedTrace.getParentTrace();
+                    selectedTrace = (XalanTemplateTrace) selectedTrace.getParentTrace();
                 }
             }
         }

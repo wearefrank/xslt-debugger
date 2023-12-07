@@ -11,7 +11,7 @@ import net.sf.saxon.om.NodeName;
 import net.sf.saxon.s9api.Location;
 import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.type.SchemaType;
-import org.wearefrank.xsltdebugger.trace.SaxonTemplateTraceListener;
+import org.wearefrank.xsltdebugger.trace.listener.SaxonTemplateTraceListener;
 
 import java.io.File;
 import java.io.StringWriter;

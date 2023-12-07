@@ -6,9 +6,9 @@ import lombok.Setter;
 import org.wearefrank.xsltdebugger.receiver.SaxonElementReceiver;
 import org.wearefrank.xsltdebugger.receiver.SaxonOutputReceiver;
 import org.wearefrank.xsltdebugger.receiver.SaxonWriterReceiver;
-import org.wearefrank.xsltdebugger.trace.LadybugTraceListener;
-import org.wearefrank.xsltdebugger.trace.SaxonTemplateTraceListener;
-import org.wearefrank.xsltdebugger.trace.XalanTemplateTraceListener;
+import org.wearefrank.xsltdebugger.trace.listener.LadybugTraceListener;
+import org.wearefrank.xsltdebugger.trace.listener.SaxonTemplateTraceListener;
+import org.wearefrank.xsltdebugger.trace.listener.XalanTemplateTraceListener;
 
 import javax.xml.transform.Result;
 import javax.xml.transform.stream.StreamResult;

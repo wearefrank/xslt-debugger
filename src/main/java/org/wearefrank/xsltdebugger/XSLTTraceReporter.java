@@ -21,9 +21,13 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.wearefrank.xsltdebugger.trace.TemplateTrace;
+import org.wearefrank.xsltdebugger.trace.Trace;
+import org.wearefrank.xsltdebugger.trace.XalanTemplateTrace;
 import org.wearefrank.xsltdebugger.util.DocumentUtil;
 import org.wearefrank.xsltdebugger.util.XPathUtil;
 import org.wearefrank.xsltdebugger.trace.TemplateTrace;
+
 import nl.nn.testtool.TestTool;
 
 import org.xml.sax.SAXException;
@@ -95,6 +99,30 @@ public class XSLTTraceReporter {
             throw new RuntimeException(e);
         }
         testTool.endpoint(correlationId, xmlFile.getName(), "Start XSLT", "End of XSLT");
+    }
+
+    private void LoopThroughTraces(Trace trace){
+        try {
+            if(trace.getChildTraces().isEmpty()) return;
+            for (Trace childTrace : trace.getChildTraces()) {
+                if(childTrace instanceof XalanTemplateTrace){
+
+                }
+                //todo: save this code until solution for optional built-in-rules has been made
+//                else {
+//                    testTool.startpoint(correlationId, templateTrace.getTraceId(), "built-in-rule match=" + templateTrace.getTemplateMatch() + " node=" + templateTrace.getSelectedNode(), templateTrace.getWholeTrace(false));
+//                    printTemplateXsl(templateTrace.getTemplateMatch());
+//                    loopThroughAllTemplates(templateTrace);
+//                    testTool.endpoint(correlationId, templateTrace.getTraceId(), "built-in-rule match=" + templateTrace.getTemplateMatch() + " node=" + templateTrace.getSelectedNode(), templateTrace.getWholeTrace(false));
+//                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void printXalanTemplateTrace(XalanTemplateTrace trace){
+
     }
 
     /**
@@ -183,7 +211,7 @@ public class XSLTTraceReporter {
 //                    testTool.startpoint(correlationId, templateTrace.getTraceId(), "built-in-rule match=" + templateTrace.getTemplateMatch() + " node=" + templateTrace.getSelectedNode(), templateTrace.getWholeTrace(false));
 //                    printTemplateXsl(templateTrace.getTemplateMatch());
 //                    loopThroughAllTemplates(templateTrace);
-//                    testTool.endpoint(correlationId, templateTrace.getTraceId(), "built-in-rule match=" + templateTrace.getTemplateMatch() + " node=" + templateTrace.getSelectedNode(), templateTrace.getWholeTrace(false));
+//                    testTool.endpoint(correlationId, templateTrace.getTraceId(), "template match=" + templateTrace.getTemplateMatch(), templateTrace.getWholeTrace(false));
 //                }
             }
         } catch (Exception e) {

@@ -13,7 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-package org.wearefrank.xsltdebugger.trace;
+package org.wearefrank.xsltdebugger.trace.listener;
 
 import lombok.Getter;
 
@@ -46,6 +46,8 @@ import net.sf.saxon.tree.util.FastStringBuffer;
 import net.sf.saxon.tree.util.Navigator;
 import net.sf.saxon.value.StringValue;
 import net.sf.saxon.value.Whitespace;
+import org.wearefrank.xsltdebugger.trace.SaxonTemplateTrace;
+import org.wearefrank.xsltdebugger.trace.TemplateTrace;
 
 import java.util.Map;
 import java.util.Objects;
@@ -56,8 +58,8 @@ import java.util.Objects;
  * This trace listener can be attached to the underlying controller of a SAXON TransformerImpl object.*/
 public class SaxonTemplateTraceListener extends StandardDiagnostics implements TraceListener, LadybugTraceListener {
     @Getter
-    private final TemplateTrace rootTrace = new TemplateTrace();
-    private TemplateTrace selectedTrace;
+    private final TemplateTrace rootTrace = new SaxonTemplateTrace();
+    private SaxonTemplateTrace selectedTrace;
     protected int indent = 0;
     private final int detail = 3; // none=0; low=1; normal=2; high=3
     /*@NotNull*/ private static StringBuffer spaceBuffer = new StringBuffer("                ");
@@ -66,7 +68,7 @@ public class SaxonTemplateTraceListener extends StandardDiagnostics implements T
     private boolean end;
 
     public SaxonTemplateTraceListener(){
-        this.selectedTrace = rootTrace;
+        this.selectedTrace = (SaxonTemplateTrace) rootTrace;
     }
 
     /**
@@ -77,10 +79,10 @@ public class SaxonTemplateTraceListener extends StandardDiagnostics implements T
     @Override
     public void open(Controller controller) {
         String trace = "<trace " + "saxon-version=\"" + Version.getProductVersion() + "\" " + getOpeningAttributes() + ">\n";
-        TemplateTrace templateTrace = new TemplateTrace(trace, selectedTrace);
+        SaxonTemplateTrace saxonTemplateTrace = new SaxonTemplateTrace(trace, selectedTrace);
 
-        selectedTrace.addChildtrace(templateTrace);
-        selectedTrace = templateTrace;
+        selectedTrace.addChildTrace(saxonTemplateTrace);
+        selectedTrace = saxonTemplateTrace;
     }
 
     /**Adds opening attribute of XSLT
@@ -315,10 +317,10 @@ public class SaxonTemplateTraceListener extends StandardDiagnostics implements T
             String trace = "<source node=\"" + Navigator.getPath(curr)
                     + "\" file=\"" + curr.getSystemId()
                     + "\">\n";
-            TemplateTrace templateTrace = new TemplateTrace(trace, selectedTrace);
+            SaxonTemplateTrace saxonTemplateTrace = new SaxonTemplateTrace(trace, selectedTrace);
 
-            selectedTrace.addChildtrace(templateTrace);
-            selectedTrace = templateTrace;
+            selectedTrace.addChildTrace(saxonTemplateTrace);
+            selectedTrace = saxonTemplateTrace;
         }
         indent++;
     }
@@ -338,7 +340,7 @@ public class SaxonTemplateTraceListener extends StandardDiagnostics implements T
             selectedTrace.addTraceContext(trace);
 
             if(end){
-                selectedTrace = selectedTrace.getParentTrace();
+                selectedTrace = (SaxonTemplateTrace) selectedTrace.getParentTrace();
                 end = false;
             }
         }
