@@ -13,11 +13,14 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-package org.wearefrank.xsltdebugger.trace;
+package org.wearefrank.xsltdebugger.trace.listener;
 
+
+import org.wearefrank.xsltdebugger.trace.SaxonTemplateTrace;
+import org.wearefrank.xsltdebugger.trace.TemplateTrace;
 
 public interface LadybugTraceListener {
     /**Root trace of the tree that that holds all the template traces.
      * @return returns the root trace*/
-    public TemplateTrace getRootTrace();
+    TemplateTrace getRootTrace();
 }

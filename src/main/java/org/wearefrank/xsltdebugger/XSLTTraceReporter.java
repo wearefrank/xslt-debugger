@@ -22,9 +22,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.wearefrank.xsltdebugger.trace.TemplateTrace;
+import org.wearefrank.xsltdebugger.trace.Trace;
+import org.wearefrank.xsltdebugger.trace.XalanTemplateTrace;
 import org.wearefrank.xsltdebugger.util.DocumentUtil;
 import org.wearefrank.xsltdebugger.util.XPathUtil;
-import org.wearefrank.xsltdebugger.trace.TemplateTrace;
 
 import nl.nn.testtool.TestTool;
 
@@ -99,6 +101,30 @@ public class XSLTTraceReporter {
         testTool.endpoint(correlationId, xmlFile.getName(), "Start XSLT", "End of XSLT");
     }
 
+    private void LoopThroughTraces(Trace trace){
+        try {
+            if(trace.getChildTraces().isEmpty()) return;
+            for (Trace childTrace : trace.getChildTraces()) {
+                if(childTrace instanceof XalanTemplateTrace){
+
+                }
+                //todo: save this code until solution for optional built-in-rules has been made
+//                else {
+//                    testTool.startpoint(correlationId, templateTrace.getTraceId(), "built-in-rule match=" + templateTrace.getTemplateMatch() + " node=" + templateTrace.getSelectedNode(), templateTrace.getWholeTrace(false));
+//                    printTemplateXsl(templateTrace.getTemplateMatch());
+//                    loopThroughAllTemplates(templateTrace);
+//                    testTool.endpoint(correlationId, templateTrace.getTraceId(), "built-in-rule match=" + templateTrace.getTemplateMatch() + " node=" + templateTrace.getSelectedNode(), templateTrace.getWholeTrace(false));
+//                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void printXalanTemplateTrace(XalanTemplateTrace trace){
+
+    }
+
     /**
      * If there are XSL files being imported in the head file,
      * this method will create an import startpoint and show them in that point
@@ -165,32 +191,32 @@ public class XSLTTraceReporter {
         return result.toString();
     }
 
-    /**
-     * This method iterates over all instances of 'template match' nodes recursively
-     * @param trace the trace where it should start looking through the child nodes
-     */
-    private void loopThroughAllTemplates(TemplateTrace trace) {
-        try {
-            if(trace.getChildTraces().isEmpty()) return;
-            for (TemplateTrace templateTrace : trace.getChildTraces()) {
-                if(!templateTrace.isABuiltInTemplate()) {
-                    testTool.startpoint(correlationId, templateTrace.getTraceId(), "template match=" + templateTrace.getTemplateMatch(), templateTrace.getWholeTrace(false));
-                    printTemplateXsl(templateTrace);
-                    loopThroughAllTemplates(templateTrace);
-                    testTool.endpoint(correlationId, templateTrace.getTraceId(), "template match=" + templateTrace.getTemplateMatch(), templateTrace.getWholeTrace(false));
-                }
-                //todo: save this code until solution for optional built-in-rules has been made
-//                else {
-//                    testTool.startpoint(correlationId, templateTrace.getTraceId(), "built-in-rule match=" + templateTrace.getTemplateMatch() + " node=" + templateTrace.getSelectedNode(), templateTrace.getWholeTrace(false));
-//                    printTemplateXsl(templateTrace.getTemplateMatch());
+//    /**
+//     * This method iterates over all instances of 'template match' nodes recursively
+//     * @param trace the trace where it should start looking through the child nodes
+//     */
+//    private void loopThroughAllTemplates(TemplateTrace trace) {
+//        try {
+//            if(trace.getChildTraces().isEmpty()) return;
+//            for (TemplateTrace templateTrace : trace.getChildTraces()) {
+//                if(!templateTrace.isABuiltInTemplate()) {
+//                    testTool.startpoint(correlationId, templateTrace.getTraceId(), "template match=" + templateTrace.getTemplateMatch(), templateTrace.getWholeTrace(false));
+//                    printTemplateXsl(templateTrace);
 //                    loopThroughAllTemplates(templateTrace);
-//                    testTool.endpoint(correlationId, templateTrace.getTraceId(), "built-in-rule match=" + templateTrace.getTemplateMatch() + " node=" + templateTrace.getSelectedNode(), templateTrace.getWholeTrace(false));
+//                    testTool.endpoint(correlationId, templateTrace.getTraceId(), "template match=" + templateTrace.getTemplateMatch(), templateTrace.getWholeTrace(false));
 //                }
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+//                //todo: save this code until solution for optional built-in-rules has been made
+////                else {
+////                    testTool.startpoint(correlationId, templateTrace.getTraceId(), "built-in-rule match=" + templateTrace.getTemplateMatch() + " node=" + templateTrace.getSelectedNode(), templateTrace.getWholeTrace(false));
+////                    printTemplateXsl(templateTrace.getTemplateMatch());
+////                    loopThroughAllTemplates(templateTrace);
+////                    testTool.endpoint(correlationId, templateTrace.getTraceId(), "built-in-rule match=" + templateTrace.getTemplateMatch() + " node=" + templateTrace.getSelectedNode(), templateTrace.getWholeTrace(false));
+////                }
+//            }
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
     /**
      * Show the given template XSL from all XSL files that contain the given template match
