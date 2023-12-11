@@ -10,9 +10,9 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ "**" ]
+    branches: [ "refactor/yaml-testing" ]
   pull_request:
-    branches: [ "**" ]
+    branches: [ "main" ]
 
 jobs:
   build:
@@ -23,7 +23,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: actions/setup-java@v3
       with:
-        java-version: '17'
+        java-version: '11'
         distribution: 'temurin'
         cache: maven
     - name: Run the Maven verify phase
