@@ -38,7 +38,7 @@ public class TemplateTrace {
     @Setter
     private String selectedNode;
     @Setter
-    private boolean aBuiltInTemplate;
+    private NodeType NodeType;
     @Setter
     private int lineNumber;
     @Setter

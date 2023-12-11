@@ -12,7 +12,7 @@ class TemplateTraceTest {
     void setup(){
         rootTrace.addChildtrace(new TemplateTrace("match_name", "system_id_string", "template_trace", "id_name", rootTrace));
         rootTrace.addChildtrace(new TemplateTrace("unnamed_trace", rootTrace));
-        rootTrace.getChildTraces().get(1).setABuiltInTemplate(true);
+        rootTrace.getChildTraces().get(1).setNodeType(NodeType.BUILT_IN_TEMPLATE);
     }
 
     @Test

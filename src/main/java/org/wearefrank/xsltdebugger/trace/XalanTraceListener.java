@@ -35,14 +35,14 @@ import javax.xml.transform.TransformerException;
 import java.io.File;
 import java.util.Objects;
 
-public class XalanTemplateTraceListener implements TraceListenerEx2, LadybugTraceListener {
+public class XalanTraceListener implements TraceListenerEx2, LadybugTraceListener {
 
     @Getter
     private final TemplateTrace rootTrace = new TemplateTrace();
 
     private TemplateTrace selectedTrace;
 
-    public XalanTemplateTraceListener(){
+    public XalanTraceListener(){
         selectedTrace = rootTrace;
     }
 
@@ -137,10 +137,11 @@ public class XalanTemplateTraceListener implements TraceListenerEx2, LadybugTrac
                     templateTrace.setColumnNumber(et.getColumnNumber());
 
                     if(isBuiltIn){
-                        templateTrace.setABuiltInTemplate(true);
+                        templateTrace.setNodeType(NodeType.BUILT_IN_TEMPLATE);
                     }
                     selectedTrace.addChildtrace(templateTrace);
                     if(!isBuiltIn) {
+                        templateTrace.setNodeType(NodeType.MATCH_TEMPLATE);
                         selectedTrace = templateTrace;
                     }
                 }
