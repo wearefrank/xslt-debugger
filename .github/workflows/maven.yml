@@ -10,9 +10,9 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ "refactor/yaml-testing" ]
+    branches: [ "**" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "**" ]
 
 jobs:
   build:
