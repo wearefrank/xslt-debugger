@@ -26,8 +26,6 @@ class XPathUtilTest {
 
             Document document = builder.parse(new InputSource(new StringReader(xmlString)));
             assertTrue(fileHasNode("element", document));
-
-            assertFalse(true);
         }catch(Exception e){
             throw new RuntimeException(e);
         }
