@@ -139,7 +139,7 @@ public class XalanTraceListener implements TraceListenerEx2, LadybugTraceListene
                     if(isBuiltIn){
                         templateTrace.setNodeType(NodeType.BUILT_IN_TEMPLATE);
                     }
-                    selectedTrace.addChildtrace(templateTrace);
+                    selectedTrace.addChildTrace(templateTrace);
                     if(!isBuiltIn) {
                         templateTrace.setNodeType(NodeType.MATCH_TEMPLATE);
                         selectedTrace = templateTrace;

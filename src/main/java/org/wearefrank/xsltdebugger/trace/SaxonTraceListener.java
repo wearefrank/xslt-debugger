@@ -40,13 +40,8 @@ import net.sf.saxon.tree.util.Navigator;
 import net.sf.saxon.value.StringValue;
 import net.sf.saxon.value.Whitespace;
 
-import java.io.FileReader;
-import java.io.LineNumberReader;
-import java.net.URL;
 import java.util.Map;
 import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 /**
@@ -60,7 +55,6 @@ public class SaxonTraceListener extends StandardDiagnostics implements TraceList
     protected int indent = 0;
     private final int detail = 3; // none=0; low=1; normal=2; high=3
     /*@NotNull*/ private static StringBuffer spaceBuffer = new StringBuffer("                ");
-
     //needed because the order of the methods to end a trace is reversed for some reason by saxon
     private boolean end;
 
@@ -78,7 +72,7 @@ public class SaxonTraceListener extends StandardDiagnostics implements TraceList
         String trace = "<trace " + "saxon-version=\"" + Version.getProductVersion() + "\" " + getOpeningAttributes() + ">\n";
         TemplateTrace templateTrace = new TemplateTrace(trace, selectedTrace);
 
-        selectedTrace.addChildtrace(templateTrace);
+        selectedTrace.addChildTrace(templateTrace);
         selectedTrace = templateTrace;
     }
 
@@ -134,13 +128,12 @@ public class SaxonTraceListener extends StandardDiagnostics implements TraceList
             } else if (expr instanceof ForEach) {
                 ForEach forEach = (ForEach) expr;
                 String traceId = forEach.getLocation().getLineNumber() + "_" + forEach.getLocation().getColumnNumber() + "_" + forEach.getLocation().getSystemId();
+
                 selectedTrace.setTraceId(traceId);
                 selectedTrace.setSystemId(forEach.getLocation().getSystemId());
                 selectedTrace.setTemplateMatch(forEach.getSelectValue());
-
                 selectedTrace.setLineNumber(forEach.getLocation().getLineNumber());
                 selectedTrace.setColumnNumber(forEach.getLocation().getColumnNumber());
-
                 String tag = "xsl:for-each select=" + forEach.getSelectValue();
                 trace.append(CreateTrace(info, tag, properties, false));
                 selectedTrace.addTraceContext(trace + "\n");
@@ -295,6 +288,11 @@ public class SaxonTraceListener extends StandardDiagnostics implements TraceList
             if (Objects.equals(selectedTrace.getTraceId(), traceId)) {
                 end = true;
             }
+        } else if (info instanceof  ForEach){
+            String traceId = info.getLocation().getLineNumber() + "_" + info.getLocation().getColumnNumber() + "_" + info.getLocation().getSystemId();
+            if (Objects.equals(selectedTrace.getTraceId(), traceId)) {
+                end = true;
+            }
         }
     }
 
@@ -335,7 +333,7 @@ public class SaxonTraceListener extends StandardDiagnostics implements TraceList
                     + "\">\n";
             TemplateTrace templateTrace = new TemplateTrace(trace, selectedTrace);
 
-            selectedTrace.addChildtrace(templateTrace);
+            selectedTrace.addChildTrace(templateTrace);
             selectedTrace = templateTrace;
         }
         indent++;

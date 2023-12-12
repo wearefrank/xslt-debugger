@@ -38,7 +38,7 @@ public class TemplateTrace {
     @Setter
     private String selectedNode;
     @Setter
-    private NodeType NodeType;
+    private NodeType nodeType;
     @Setter
     private int lineNumber;
     @Setter
@@ -50,16 +50,18 @@ public class TemplateTrace {
         this.systemId = systemId;
         this.traceId = id;
         this.parentTrace = parentTrace;
+        this.nodeType = NodeType.MATCH_TEMPLATE;
     }
 
     public TemplateTrace(String templateTrace, TemplateTrace parentTrace){
         this.templateTrace = templateTrace;
         this.parentTrace = parentTrace;
+        this.nodeType = NodeType.MATCH_TEMPLATE;
     }
 
     /**This method adds a child trace object to the list of child traces
      * @param trace TemplateTrace object that will be added to child traces*/
-    public void addChildtrace(TemplateTrace trace){
+    public void addChildTrace(TemplateTrace trace){
         this.childTraces.add(trace);
     }
 

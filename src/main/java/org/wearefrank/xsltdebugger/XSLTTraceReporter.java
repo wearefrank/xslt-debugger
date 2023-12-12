@@ -175,10 +175,14 @@ public class XSLTTraceReporter {
             if(trace.getChildTraces().isEmpty()) return;
             for (TemplateTrace templateTrace : trace.getChildTraces()) {
                 if(templateTrace.getNodeType() == NodeType.MATCH_TEMPLATE) {
-                    testTool.startpoint(correlationId, templateTrace.getTraceId(), "template match=" + templateTrace.getTemplateMatch(), templateTrace.getWholeTrace(false));
-                    printTemplateXsl(templateTrace);
+                    if(templateTrace.getTemplateMatch() != null) {
+                        testTool.startpoint(correlationId, templateTrace.getTraceId(), "template match=" + templateTrace.getTemplateMatch(), templateTrace.getWholeTrace(false));
+                        printTemplateXsl(templateTrace);
+                    }
                     loopThroughAllTemplates(templateTrace);
-                    testTool.endpoint(correlationId, templateTrace.getTraceId(), "template match=" + templateTrace.getTemplateMatch(), templateTrace.getWholeTrace(false));
+                    if(templateTrace.getTemplateMatch() != null) {
+                        testTool.endpoint(correlationId, templateTrace.getTraceId(), "template match=" + templateTrace.getTemplateMatch(), templateTrace.getWholeTrace(false));
+                    }
                 } else if (templateTrace.getNodeType() == NodeType.FOREACH) {
                     testTool.startpoint(correlationId, templateTrace.getTraceId(), "for-each select=" + templateTrace.getTemplateMatch(), templateTrace.getWholeTrace(false));
                     printTemplateXsl(templateTrace);
