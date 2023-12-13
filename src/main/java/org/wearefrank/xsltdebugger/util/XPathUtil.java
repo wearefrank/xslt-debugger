@@ -17,22 +17,21 @@
 
 package org.wearefrank.xsltdebugger.util;
 
-import net.sf.saxon.xpath.XPathEvaluator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathFactory;
 import javax.xml.xpath.XPathExpressionException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class XPathUtil {
-    private static final XPathEvaluator xpathEvaluator = new XPathEvaluator();
 
     public static XPathExpression createXPathExpression(String xpath) throws XPathExpressionException {
-        return xpathEvaluator.compile(xpath);
+        return XPathFactory.newInstance().newXPath().compile(xpath);
     }
 
     /**
@@ -58,12 +57,12 @@ public class XPathUtil {
      * Gets the nodelist from a document with xPath expression
      *
      * @param doc             document to convert to Nodelist
-     * @param xPathExpression given xPathExpression to search by
+     * @param expression given xPathExpression to search by
      * @return return the nodelist from xPathExpression
      * @throws XPathExpressionException if there is an error in the XPath expression
      */
-    public static List<Node> getNodesByXPath(String xPathExpression, Document doc) throws XPathExpressionException {
-        return nodeListToList((NodeList)createXPathExpression(xPathExpression).evaluate(doc.getDocumentElement(), XPathConstants.NODESET));
+    public static List<Node> getNodesByXPath(String expression, Document doc) throws XPathExpressionException {
+        return nodeListToList((NodeList)createXPathExpression(expression).evaluate(doc.getDocumentElement().getChildNodes(), XPathConstants.NODESET));
     }
 
     private static List<Node> nodeListToList(NodeList startList) {
