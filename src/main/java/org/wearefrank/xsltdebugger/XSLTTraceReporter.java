@@ -16,6 +16,8 @@ package org.wearefrank.xsltdebugger;
    limitations under the License.
 */
 
+
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -24,6 +26,7 @@ import org.w3c.dom.NodeList;
 import org.wearefrank.xsltdebugger.util.DocumentUtil;
 import org.wearefrank.xsltdebugger.util.XPathUtil;
 import org.wearefrank.xsltdebugger.trace.TemplateTrace;
+
 import nl.nn.testtool.TestTool;
 
 import org.xml.sax.SAXException;
@@ -224,12 +227,20 @@ public class XSLTTraceReporter {
      * */
     private String printTemplateXml(TemplateTrace trace) {
         try {
+            List<Node> nodeList;
+
             Document doc = DocumentUtil.buildDocument(xmlFile);
-            List<Node> nodeList =  XPathUtil.getNodesByXPath(trace.getTemplateMatch(), doc);
+            String parentMatch = "/";
+            if(trace.getParentTrace().getTemplateMatch() != null){
+                parentMatch = trace.getParentTrace().getTemplateMatch();
+                nodeList =  XPathUtil.getNodesByXPath(parentMatch+"/"+trace.getTemplateMatch(), doc);
+            } else {
+                nodeList =  XPathUtil.getNodesByXPath(parentMatch+trace.getTemplateMatch()+"*", doc);
+            }
+
             StringWriter result = new StringWriter();
 
             for (Node node: nodeList) {
-                System.out.println(node.getNodeName());
                 StringBuilder stringBuilder = new StringBuilder();
                 getNodeIndentation(stringBuilder, node, 0, false);
                 result.append(stringBuilder).append("\n");
