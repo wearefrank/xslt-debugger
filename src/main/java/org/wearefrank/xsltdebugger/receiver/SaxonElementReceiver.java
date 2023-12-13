@@ -11,7 +11,7 @@ import net.sf.saxon.om.NodeName;
 import net.sf.saxon.s9api.Location;
 import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.type.SchemaType;
-import org.wearefrank.xsltdebugger.trace.SaxonTemplateTraceListener;
+import org.wearefrank.xsltdebugger.trace.SaxonTraceListener;
 
 import java.io.File;
 import java.io.StringWriter;
@@ -27,9 +27,9 @@ public class SaxonElementReceiver implements Receiver {
 
     private Stack<String> endElement;
 
-    private SaxonTemplateTraceListener traceListener;
+    private SaxonTraceListener traceListener;
 
-    public SaxonElementReceiver(SaxonTemplateTraceListener traceListener){
+    public SaxonElementReceiver(SaxonTraceListener traceListener){
         this.traceListener = traceListener;
         this.endElement = new Stack<>();
     }

@@ -22,14 +22,7 @@ import net.sf.saxon.Version;
 import net.sf.saxon.expr.Expression;
 import net.sf.saxon.expr.LetExpression;
 import net.sf.saxon.expr.XPathContext;
-import net.sf.saxon.expr.instruct.FixedAttribute;
-import net.sf.saxon.expr.instruct.FixedElement;
-import net.sf.saxon.expr.instruct.GlobalParam;
-import net.sf.saxon.expr.instruct.GlobalVariable;
-import net.sf.saxon.expr.instruct.Instruction;
-import net.sf.saxon.expr.instruct.NamedTemplate;
-import net.sf.saxon.expr.instruct.TemplateRule;
-import net.sf.saxon.expr.instruct.UserFunction;
+import net.sf.saxon.expr.instruct.*;
 import net.sf.saxon.functions.Trace;
 import net.sf.saxon.lib.Logger;
 import net.sf.saxon.lib.NamespaceConstant;
@@ -51,21 +44,21 @@ import java.util.Map;
 import java.util.Objects;
 
 
-
-/**The SaxonTemplateTraceListener is a trace listener meant for tracing the transform of XSLT.
- * This trace listener can be attached to the underlying controller of a SAXON TransformerImpl object.*/
-public class SaxonTemplateTraceListener extends StandardDiagnostics implements TraceListener, LadybugTraceListener {
+/**
+ * The SaxonTemplateTraceListener is a trace listener meant for tracing the transform of XSLT.
+ * This trace listener can be attached to the underlying controller of a SAXON TransformerImpl object.
+ */
+public class SaxonTraceListener extends StandardDiagnostics implements TraceListener, LadybugTraceListener {
     @Getter
     private final TemplateTrace rootTrace = new TemplateTrace();
     private TemplateTrace selectedTrace;
     protected int indent = 0;
     private final int detail = 3; // none=0; low=1; normal=2; high=3
     /*@NotNull*/ private static StringBuffer spaceBuffer = new StringBuffer("                ");
-
     //needed because the order of the methods to end a trace is reversed for some reason by saxon
     private boolean end;
 
-    public SaxonTemplateTraceListener(){
+    public SaxonTraceListener() {
         this.selectedTrace = rootTrace;
     }
 
@@ -79,12 +72,15 @@ public class SaxonTemplateTraceListener extends StandardDiagnostics implements T
         String trace = "<trace " + "saxon-version=\"" + Version.getProductVersion() + "\" " + getOpeningAttributes() + ">\n";
         TemplateTrace templateTrace = new TemplateTrace(trace, selectedTrace);
 
-        selectedTrace.addChildtrace(templateTrace);
+        selectedTrace.addChildTrace(templateTrace);
         selectedTrace = templateTrace;
     }
 
-    /**Adds opening attribute of XSLT
-     * @return returns the XSLT namespace stylesheet*/
+    /**
+     * Adds opening attribute of XSLT
+     *
+     * @return returns the XSLT namespace stylesheet
+     */
     protected String getOpeningAttributes() {
         return "xmlns:xsl=\"" + NamespaceConstant.XSLT + '\"';
     }
@@ -129,6 +125,19 @@ public class SaxonTemplateTraceListener extends StandardDiagnostics implements T
                 String tag = "xsl:variable";
                 trace.append(CreateTrace(info, tag, properties, true));
                 selectedTrace.addTraceContext(trace + "\n");
+            } else if (expr instanceof ForEach) {
+                ForEach forEach = (ForEach) expr;
+                String traceId = forEach.getLocation().getLineNumber() + "_" + forEach.getLocation().getColumnNumber() + "_" + forEach.getLocation().getSystemId();
+
+                selectedTrace.setTraceId(traceId);
+                selectedTrace.setSystemId(forEach.getLocation().getSystemId());
+                selectedTrace.setTemplateMatch(forEach.getSelectValue());
+                selectedTrace.setLineNumber(forEach.getLocation().getLineNumber());
+                selectedTrace.setColumnNumber(forEach.getLocation().getColumnNumber());
+                String tag = "xsl:for-each select=" + forEach.getSelectValue();
+                trace.append(CreateTrace(info, tag, properties, false));
+                selectedTrace.addTraceContext(trace + "\n");
+                selectedTrace.setNodeType(NodeType.FOREACH);
             } else if (expr.isCallOn(Trace.class)) {
                 String tag = "fn:trace";
                 trace.append(CreateTrace(info, tag, properties, true));
@@ -153,6 +162,7 @@ public class SaxonTemplateTraceListener extends StandardDiagnostics implements T
             String tag = "xsl:template match=" + ((TemplateRule) info).getMatchPattern().getOriginalText();
             trace.append(CreateTrace(info, tag, properties, false));
             selectedTrace.addTraceContext(trace + "\n");
+            selectedTrace.setNodeType(NodeType.MATCH_TEMPLATE);
         } else if (info instanceof NamedTemplate) {
             String traceId = ((NamedTemplate) info).getLineNumber() + "_" + ((NamedTemplate) info).getColumnNumber() + "_" + ((NamedTemplate) info).getSystemId();
             selectedTrace.setTraceId(traceId);
@@ -165,6 +175,7 @@ public class SaxonTemplateTraceListener extends StandardDiagnostics implements T
             String tag = "xsl:template match=" + ((NamedTemplate) info).getTemplateName().getDisplayName();
             trace.append(CreateTrace(info, tag, properties, false));
             selectedTrace.addTraceContext(trace + "\n");
+            selectedTrace.setNodeType(NodeType.MATCH_TEMPLATE);
         } else if (info instanceof GlobalParam) {
             String tag = "xsl:param";
             trace.append(CreateTrace(info, tag, properties, true));
@@ -184,11 +195,11 @@ public class SaxonTemplateTraceListener extends StandardDiagnostics implements T
         }
     }
 
-    private String CreateTrace(Traceable info, String tag, Map<String, Object> properties, boolean useIndents){
+    private String CreateTrace(Traceable info, String tag, Map<String, Object> properties, boolean useIndents) {
         Location loc = info.getLocation();
         String file = abbreviateLocationURI(loc.getSystemId());
         StringBuilder trace = new StringBuilder();
-        if(useIndents){
+        if (useIndents) {
             trace.append(spaces(indent));
         }
         trace.append('<').append(tag).append(" ");
@@ -269,12 +280,17 @@ public class SaxonTemplateTraceListener extends StandardDiagnostics implements T
 
         if (info instanceof TemplateRule) {
             String traceId = ((TemplateRule) info).getLineNumber() + "_" + ((TemplateRule) info).getColumnNumber() + "_" + ((TemplateRule) info).getSystemId();
-            if(Objects.equals(selectedTrace.getTraceId(), traceId)){
+            if (Objects.equals(selectedTrace.getTraceId(), traceId)) {
                 end = true;
             }
         } else if (info instanceof NamedTemplate) {
             String traceId = ((NamedTemplate) info).getLineNumber() + "_" + ((NamedTemplate) info).getColumnNumber() + "_" + ((NamedTemplate) info).getSystemId();
-            if(Objects.equals(selectedTrace.getTraceId(), traceId)){
+            if (Objects.equals(selectedTrace.getTraceId(), traceId)) {
+                end = true;
+            }
+        } else if (info instanceof  ForEach){
+            String traceId = info.getLocation().getLineNumber() + "_" + info.getLocation().getColumnNumber() + "_" + info.getLocation().getSystemId();
+            if (Objects.equals(selectedTrace.getTraceId(), traceId)) {
                 end = true;
             }
         }
@@ -317,7 +333,7 @@ public class SaxonTemplateTraceListener extends StandardDiagnostics implements T
                     + "\">\n";
             TemplateTrace templateTrace = new TemplateTrace(trace, selectedTrace);
 
-            selectedTrace.addChildtrace(templateTrace);
+            selectedTrace.addChildTrace(templateTrace);
             selectedTrace = templateTrace;
         }
         indent++;
@@ -337,7 +353,7 @@ public class SaxonTemplateTraceListener extends StandardDiagnostics implements T
             String trace = "</source><!-- " + Navigator.getPath(curr) + " -->";
             selectedTrace.addTraceContext(trace);
 
-            if(end){
+            if (end) {
                 selectedTrace = selectedTrace.getParentTrace();
                 end = false;
             }
@@ -368,7 +384,7 @@ public class SaxonTemplateTraceListener extends StandardDiagnostics implements T
     public void setOutputDestination(Logger stream) {
     }
 
-    public void addElementContext(String context){
+    public void addElementContext(String context) {
         selectedTrace.addTraceContext(context + "\n");
     }
 }

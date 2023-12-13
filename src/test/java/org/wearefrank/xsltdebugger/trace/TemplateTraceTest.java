@@ -10,14 +10,14 @@ class TemplateTraceTest {
 
     @BeforeEach
     void setup(){
-        rootTrace.addChildtrace(new TemplateTrace("match_name", "system_id_string", "template_trace", "id_name", rootTrace));
-        rootTrace.addChildtrace(new TemplateTrace("unnamed_trace", rootTrace));
-        rootTrace.getChildTraces().get(1).setABuiltInTemplate(true);
+        rootTrace.addChildTrace(new TemplateTrace("match_name", "system_id_string", "template_trace", "id_name", rootTrace));
+        rootTrace.addChildTrace(new TemplateTrace("unnamed_trace", rootTrace));
+        rootTrace.getChildTraces().get(1).setNodeType(NodeType.BUILT_IN_TEMPLATE);
     }
 
     @Test
     void shouldAddChildtrace() {
-        rootTrace.addChildtrace(new TemplateTrace());
+        rootTrace.addChildTrace(new TemplateTrace());
         assertNotNull(rootTrace.getChildTraces().get(2));
     }
 
@@ -58,7 +58,7 @@ class TemplateTraceTest {
     void shouldGetParentTrace() {
         TemplateTrace parentTrace = new TemplateTrace("match_name", "system_id_string", "template_trace", "id_name", rootTrace);
         TemplateTrace childTrace = new TemplateTrace("match_name", "system_id_string", "template_trace", "different id_name", parentTrace);
-        parentTrace.addChildtrace(childTrace);
+        parentTrace.addChildTrace(childTrace);
         assertEquals(parentTrace.getTraceId(), childTrace.getParentTrace().getTraceId());
     }
 

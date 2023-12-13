@@ -19,6 +19,7 @@ package org.wearefrank.xsltdebugger.util;
 
 import net.sf.saxon.xpath.XPathEvaluator;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import javax.xml.xpath.XPathConstants;

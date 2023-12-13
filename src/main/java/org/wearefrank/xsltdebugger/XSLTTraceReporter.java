@@ -22,6 +22,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.wearefrank.xsltdebugger.trace.NodeType;
 import org.wearefrank.xsltdebugger.util.DocumentUtil;
 import org.wearefrank.xsltdebugger.util.XPathUtil;
 import org.wearefrank.xsltdebugger.trace.TemplateTrace;
@@ -173,11 +174,20 @@ public class XSLTTraceReporter {
         try {
             if(trace.getChildTraces().isEmpty()) return;
             for (TemplateTrace templateTrace : trace.getChildTraces()) {
-                if(!templateTrace.isABuiltInTemplate()) {
-                    testTool.startpoint(correlationId, templateTrace.getTraceId(), "template match=" + templateTrace.getTemplateMatch(), templateTrace.getWholeTrace(false));
+                if(templateTrace.getNodeType() == NodeType.MATCH_TEMPLATE) {
+                    if(templateTrace.getTemplateMatch() != null) {
+                        testTool.startpoint(correlationId, templateTrace.getTraceId(), "template match=" + templateTrace.getTemplateMatch(), templateTrace.getWholeTrace(false));
+                        printTemplateXsl(templateTrace);
+                    }
+                    loopThroughAllTemplates(templateTrace);
+                    if(templateTrace.getTemplateMatch() != null) {
+                        testTool.endpoint(correlationId, templateTrace.getTraceId(), "template match=" + templateTrace.getTemplateMatch(), templateTrace.getWholeTrace(false));
+                    }
+                } else if (templateTrace.getNodeType() == NodeType.FOREACH) {
+                    testTool.startpoint(correlationId, templateTrace.getTraceId(), "for-each select=" + templateTrace.getTemplateMatch(), templateTrace.getWholeTrace(false));
                     printTemplateXsl(templateTrace);
                     loopThroughAllTemplates(templateTrace);
-                    testTool.endpoint(correlationId, templateTrace.getTraceId(), "template match=" + templateTrace.getTemplateMatch(), templateTrace.getWholeTrace(false));
+                    testTool.endpoint(correlationId, templateTrace.getTraceId(), "for-each select=" + templateTrace.getTemplateMatch(), templateTrace.getWholeTrace(false));
                 }
                 //todo: save this code until solution for optional built-in-rules has been made
 //                else {
