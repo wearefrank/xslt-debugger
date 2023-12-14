@@ -38,7 +38,7 @@ public class XSLTReporterSetup {
             xalanTransform();
         } else if (xsltVersion == 2 || xsltVersion == 3) {
             writer = new StringWriter();
-            saxonTramsform();
+            saxonTransform();
         } else {
             throw new RuntimeException("ERROR: Invalid xslt version");
         }
@@ -67,7 +67,7 @@ public class XSLTReporterSetup {
         }
     }
 
-    private void saxonTramsform() {
+    private void saxonTransform() {
         try {
             net.sf.saxon.TransformerFactoryImpl transformerFactory = new net.sf.saxon.TransformerFactoryImpl();
             net.sf.saxon.jaxp.TransformerImpl transformer = (net.sf.saxon.jaxp.TransformerImpl) transformerFactory.newTransformer(new StreamSource(xslFile.getAbsolutePath()));

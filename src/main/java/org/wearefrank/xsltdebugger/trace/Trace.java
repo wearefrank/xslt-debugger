@@ -1,18 +1,3 @@
-/*
-   Copyright 2023 WeAreFrank!
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
 package org.wearefrank.xsltdebugger.trace;
 
 import lombok.Getter;
@@ -22,6 +7,9 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A trace object holds the information about an instruction in the xsl. It also holds context about what happens during this instruction
+ */
 @Getter
 @NoArgsConstructor
 public class Trace {
@@ -53,30 +41,38 @@ public class Trace {
         this.nodeType = NodeType.MATCH_TEMPLATE;
     }
 
-    public Trace(String headTraceContext, Trace parentTrace){
+    public Trace(String headTraceContext, Trace parentTrace) {
         this.headTraceContext = headTraceContext;
         this.parentTrace = parentTrace;
         this.nodeType = NodeType.MATCH_TEMPLATE;
     }
 
-    /**This method adds a child trace object to the list of child traces
-     * @param trace Trace object that will be added to child traces*/
-    public void addChildTrace(Trace trace){
+    /**
+     * This method adds a child trace object to the list of child traces
+     *
+     * @param trace Trace object that will be added to child traces
+     */
+    public void addChildTrace(Trace trace) {
         this.childTraces.add(trace);
     }
 
-    /**This method adds a trace to the children traces of the parent trace
-     * @param context adds a context trace to this trace*/
+    /**
+     * This method adds a trace to the children traces of the parent trace
+     *
+     * @param context adds a context trace to this trace
+     */
     public void addTraceContext(String context) {
         this.traceContext.add(context);
     }
 
-    /**@param showSeparator determines whether it shows a line to separate the traces.
-     * @return Returns a string that holds the complete trace of the transform*/
-    public String getWholeTrace(boolean showSeparator){
+    /**
+     * @param showSeparator determines whether it shows a line to separate the traces.
+     * @return Returns a string that holds the complete trace of the transform
+     */
+    public String getWholeTrace(boolean showSeparator) {
         StringBuilder result = new StringBuilder();
 
-        if(showSeparator) {
+        if (showSeparator) {
             result.append("--------------------------------------------New trace instruction being applied--------------------------------------------\n");
         }
         result.append(headTraceContext);
