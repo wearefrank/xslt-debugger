@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import org.wearefrank.xsltdebugger.receiver.SaxonElementReceiver;
-import org.wearefrank.xsltdebugger.receiver.SaxonOutputReceiver;
+import org.wearefrank.xsltdebugger.receiver.SaxonOutputSplitter;
 import org.wearefrank.xsltdebugger.receiver.SaxonWriterReceiver;
 import org.wearefrank.xsltdebugger.trace.LadybugTraceListener;
 import org.wearefrank.xsltdebugger.trace.SaxonTraceListener;
@@ -79,7 +79,7 @@ public class XSLTReporterSetup {
 
             SaxonElementReceiver elementReceiver = new SaxonElementReceiver(traceListener);
             SaxonWriterReceiver writerReceiver = new SaxonWriterReceiver(writer);
-            SaxonOutputReceiver receiver = new SaxonOutputReceiver(transformer.getUnderlyingController().makeBuilder(), writerReceiver, elementReceiver);
+            SaxonOutputSplitter receiver = new SaxonOutputSplitter(transformer.getUnderlyingController().makeBuilder(), writerReceiver, elementReceiver);
 
             transformer.getUnderlyingController().getInitialMode().setModeTracing(true);
 

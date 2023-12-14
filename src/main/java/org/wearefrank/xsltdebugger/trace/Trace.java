@@ -24,17 +24,17 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor
-public class TemplateTrace {
+public class Trace {
     @Setter
     private String traceId;
-    private TemplateTrace parentTrace;
+    private Trace parentTrace;
     @Setter
-    private String templateMatch;
-    private String templateTrace;
+    private String traceMatch;
+    private String headTraceContext;
     @Setter
     private String systemId;
     private final List<String> traceContext = new ArrayList<>();
-    private final List<TemplateTrace> childTraces = new ArrayList<>();
+    private final List<Trace> childTraces = new ArrayList<>();
     @Setter
     private String selectedNode;
     @Setter
@@ -44,28 +44,28 @@ public class TemplateTrace {
     @Setter
     private int columnNumber;
 
-    public TemplateTrace(String templateMatch, String systemId, String templateTrace, String id, TemplateTrace parentTrace) {
-        this.templateMatch = templateMatch;
-        this.templateTrace = templateTrace;
+    public Trace(String traceMatch, String systemId, String headTraceContext, String id, Trace parentTrace) {
+        this.traceMatch = traceMatch;
+        this.headTraceContext = headTraceContext;
         this.systemId = systemId;
         this.traceId = id;
         this.parentTrace = parentTrace;
         this.nodeType = NodeType.MATCH_TEMPLATE;
     }
 
-    public TemplateTrace(String templateTrace, TemplateTrace parentTrace){
-        this.templateTrace = templateTrace;
+    public Trace(String headTraceContext, Trace parentTrace){
+        this.headTraceContext = headTraceContext;
         this.parentTrace = parentTrace;
         this.nodeType = NodeType.MATCH_TEMPLATE;
     }
 
     /**This method adds a child trace object to the list of child traces
-     * @param trace TemplateTrace object that will be added to child traces*/
-    public void addChildTrace(TemplateTrace trace){
+     * @param trace Trace object that will be added to child traces*/
+    public void addChildTrace(Trace trace){
         this.childTraces.add(trace);
     }
 
-    /**This method adds a trace to the children traces of the parent template trace
+    /**This method adds a trace to the children traces of the parent trace
      * @param context adds a context trace to this trace*/
     public void addTraceContext(String context) {
         this.traceContext.add(context);
@@ -77,9 +77,9 @@ public class TemplateTrace {
         StringBuilder result = new StringBuilder();
 
         if(showSeparator) {
-            result.append("--------------------------------------------New template being applied--------------------------------------------\n");
+            result.append("--------------------------------------------New trace instruction being applied--------------------------------------------\n");
         }
-        result.append(templateTrace);
+        result.append(headTraceContext);
 
         for (String childrenTrace : traceContext) {
             result.append(childrenTrace);

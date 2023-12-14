@@ -25,7 +25,7 @@ import org.w3c.dom.NodeList;
 import org.wearefrank.xsltdebugger.trace.NodeType;
 import org.wearefrank.xsltdebugger.util.DocumentUtil;
 import org.wearefrank.xsltdebugger.util.XPathUtil;
-import org.wearefrank.xsltdebugger.trace.TemplateTrace;
+import org.wearefrank.xsltdebugger.trace.Trace;
 
 import nl.nn.testtool.TestTool;
 
@@ -46,11 +46,11 @@ public class XSLTTraceReporter {
     private final File xmlFile;
     private final File xslFile;
     private final String xsltResult;
-    private final TemplateTrace rootTrace;
+    private final Trace rootTrace;
     private final List<File> allXSLFiles;
     private final String correlationId;
 
-    public XSLTTraceReporter(TestTool testTool, File xmlFile, File xslFile, TemplateTrace rootTrace, String xsltResult, String correlationId) {
+    public XSLTTraceReporter(TestTool testTool, File xmlFile, File xslFile, Trace rootTrace, String xsltResult, String correlationId) {
         this.testTool = testTool;
         this.xmlFile = xmlFile;
         this.xslFile = xslFile;
@@ -147,7 +147,7 @@ public class XSLTTraceReporter {
     /**
      * @param trace the trace where the search should start for the recursive method
      */
-    private void printCompleteTraceFromStack(TemplateTrace trace) {
+    private void printCompleteTraceFromStack(Trace trace) {
         String result = getAllTraces(trace);
         testTool.infopoint(correlationId, xslFile.getName(), "Complete XSLT Trace", result);
     }
@@ -156,38 +156,38 @@ public class XSLTTraceReporter {
      * Recursively going through all traces that are in the child nodes of the given trace object.
      * @param trace the trace where it looks through the child nodes
      */
-    private String getAllTraces(TemplateTrace trace){
+    private String getAllTraces(Trace trace){
         StringBuilder result = new StringBuilder();
         if(trace.getChildTraces().isEmpty()) return "";
-        for (TemplateTrace templateTrace : trace.getChildTraces()) {
-            result.append(templateTrace.getWholeTrace(true)).append("\n");
-            result.append(getAllTraces(templateTrace));
+        for (Trace childTrace : trace.getChildTraces()) {
+            result.append(childTrace.getWholeTrace(true)).append("\n");
+            result.append(getAllTraces(childTrace));
         }
         return result.toString();
     }
 
     /**
-     * This method iterates over all instances of 'template match' nodes recursively
+     * This method iterates over all trace nodes recursively
      * @param trace the trace where it should start looking through the child nodes
      */
-    private void loopThroughAllTemplates(TemplateTrace trace) {
+    private void loopThroughAllTemplates(Trace trace) {
         try {
             if(trace.getChildTraces().isEmpty()) return;
-            for (TemplateTrace templateTrace : trace.getChildTraces()) {
-                if(templateTrace.getNodeType() == NodeType.MATCH_TEMPLATE) {
-                    if(templateTrace.getTemplateMatch() != null) {
-                        testTool.startpoint(correlationId, templateTrace.getTraceId(), "template match=" + templateTrace.getTemplateMatch(), templateTrace.getWholeTrace(false));
-                        printTemplateXsl(templateTrace);
+            for (Trace childTrace : trace.getChildTraces()) {
+                if(childTrace.getNodeType() == NodeType.MATCH_TEMPLATE) {
+                    if(childTrace.getTraceMatch() != null) {
+                        testTool.startpoint(correlationId, childTrace.getTraceId(), "template match=" + childTrace.getTraceMatch(), childTrace.getWholeTrace(false));
+                        printTemplateXsl(childTrace);
                     }
-                    loopThroughAllTemplates(templateTrace);
-                    if(templateTrace.getTemplateMatch() != null) {
-                        testTool.endpoint(correlationId, templateTrace.getTraceId(), "template match=" + templateTrace.getTemplateMatch(), templateTrace.getWholeTrace(false));
+                    loopThroughAllTemplates(childTrace);
+                    if(childTrace.getTraceMatch() != null) {
+                        testTool.endpoint(correlationId, childTrace.getTraceId(), "template match=" + childTrace.getTraceMatch(), childTrace.getWholeTrace(false));
                     }
-                } else if (templateTrace.getNodeType() == NodeType.FOREACH) {
-                    testTool.startpoint(correlationId, templateTrace.getTraceId(), "for-each select=" + templateTrace.getTemplateMatch(), templateTrace.getWholeTrace(false));
-                    printTemplateXsl(templateTrace);
-                    loopThroughAllTemplates(templateTrace);
-                    testTool.endpoint(correlationId, templateTrace.getTraceId(), "for-each select=" + templateTrace.getTemplateMatch(), templateTrace.getWholeTrace(false));
+                } else if (childTrace.getNodeType() == NodeType.FOREACH) {
+                    testTool.startpoint(correlationId, childTrace.getTraceId(), "for-each select=" + childTrace.getTraceMatch(), childTrace.getWholeTrace(false));
+                    printTemplateXsl(childTrace);
+                    loopThroughAllTemplates(childTrace);
+                    testTool.endpoint(correlationId, childTrace.getTraceId(), "for-each select=" + childTrace.getTraceMatch(), childTrace.getWholeTrace(false));
                 }
                 //todo: save this code until solution for optional built-in-rules has been made
 //                else {
@@ -206,7 +206,7 @@ public class XSLTTraceReporter {
      * Show the given template XSL from all XSL files that contain the given template match
      * @param trace template match inside trace object to look for in XSL files
      */
-    private void printTemplateXsl(TemplateTrace trace) throws IOException, SAXException, XPathExpressionException {
+    private void printTemplateXsl(Trace trace) throws IOException, SAXException, XPathExpressionException {
         for (File file : allXSLFiles) {
             boolean hasMatchAttribute = false;
             Document doc = DocumentUtil.buildDocument(file);
@@ -216,7 +216,7 @@ public class XSLTTraceReporter {
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Element element = (Element) nodeList.item(i);
 
-                if (element.getAttribute("match").equals(trace.getTemplateMatch())) {
+                if (element.getAttribute("match").equals(trace.getTraceMatch())) {
                     hasMatchAttribute = true;
                     StringBuilder stringBuilder = new StringBuilder();
                     getNodeIndentation(stringBuilder, nodeList.item(i), 0, true);
