@@ -1,34 +1,24 @@
-/*
-   Copyright 2023 WeAreFrank!
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
-
-
 package org.wearefrank.xsltdebugger.util;
 
 import net.sf.saxon.xpath.XPathEvaluator;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 
+/**
+ * XPath utilities
+ */
 public class XPathUtil {
     private static final XPathEvaluator xpathEvaluator = new XPathEvaluator();
 
+    /**
+     * Creates an XPathExpression object based on the XPath expression string given
+     *
+     * @param xpath XPath expression string to make an XPathExpression object out of
+     */
     public static XPathExpression createXPathExpression(String xpath) throws XPathExpressionException {
         return xpathEvaluator.compile(xpath);
     }
@@ -53,11 +43,11 @@ public class XPathUtil {
     }
 
     /**
-     * Gets the nodelist from a document with xPath expression
+     * Gets the NodeList from a document with xPath expression
      *
-     * @param doc             document to convert to Nodelist
+     * @param doc             document to convert to NodeList
      * @param xPathExpression given xPathExpression to search by
-     * @return return the nodelist from xPathExpression
+     * @return return the NodeList from xPathExpression
      * @throws XPathExpressionException if there is an error in the XPath expression
      */
     public static NodeList getNodesByXPath(String xPathExpression, Document doc) throws XPathExpressionException {

@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import org.wearefrank.xsltdebugger.receiver.SaxonElementReceiver;
-import org.wearefrank.xsltdebugger.receiver.SaxonOutputReceiver;
+import org.wearefrank.xsltdebugger.receiver.SaxonOutputSplitter;
 import org.wearefrank.xsltdebugger.receiver.SaxonWriterReceiver;
 import org.wearefrank.xsltdebugger.trace.LadybugTraceListener;
 import org.wearefrank.xsltdebugger.trace.SaxonTraceListener;
@@ -38,7 +38,7 @@ public class XSLTReporterSetup {
             xalanTransform();
         } else if (xsltVersion == 2 || xsltVersion == 3) {
             writer = new StringWriter();
-            saxonTramsform();
+            saxonTransform();
         } else {
             throw new RuntimeException("ERROR: Invalid xslt version");
         }
@@ -67,7 +67,7 @@ public class XSLTReporterSetup {
         }
     }
 
-    private void saxonTramsform() {
+    private void saxonTransform() {
         try {
             net.sf.saxon.TransformerFactoryImpl transformerFactory = new net.sf.saxon.TransformerFactoryImpl();
             net.sf.saxon.jaxp.TransformerImpl transformer = (net.sf.saxon.jaxp.TransformerImpl) transformerFactory.newTransformer(new StreamSource(xslFile.getAbsolutePath()));
@@ -79,7 +79,7 @@ public class XSLTReporterSetup {
 
             SaxonElementReceiver elementReceiver = new SaxonElementReceiver(traceListener);
             SaxonWriterReceiver writerReceiver = new SaxonWriterReceiver(writer);
-            SaxonOutputReceiver receiver = new SaxonOutputReceiver(transformer.getUnderlyingController().makeBuilder(), writerReceiver, elementReceiver);
+            SaxonOutputSplitter receiver = new SaxonOutputSplitter(transformer.getUnderlyingController().makeBuilder(), writerReceiver, elementReceiver);
 
             transformer.getUnderlyingController().getInitialMode().setModeTracing(true);
 

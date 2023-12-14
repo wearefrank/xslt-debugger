@@ -1,18 +1,3 @@
-/*
-   Copyright 2023 WeAreFrank!
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
 package org.wearefrank.xsltdebugger.trace;
 
 import lombok.Getter;
@@ -23,7 +8,6 @@ import net.sf.saxon.expr.Expression;
 import net.sf.saxon.expr.LetExpression;
 import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.expr.instruct.*;
-import net.sf.saxon.functions.Trace;
 import net.sf.saxon.lib.Logger;
 import net.sf.saxon.lib.NamespaceConstant;
 import net.sf.saxon.lib.StandardDiagnostics;
@@ -33,7 +17,6 @@ import net.sf.saxon.om.NodeInfo;
 import net.sf.saxon.om.StructuredQName;
 import net.sf.saxon.s9api.Location;
 import net.sf.saxon.trace.Traceable;
-import net.sf.saxon.trace.TraceableComponent;
 import net.sf.saxon.tree.tiny.TinyElementImpl;
 import net.sf.saxon.tree.util.FastStringBuffer;
 import net.sf.saxon.tree.util.Navigator;
@@ -45,16 +28,13 @@ import java.util.Objects;
 
 
 /**
- * The SaxonTemplateTraceListener is a trace listener meant for tracing the transform of XSLT.
+ * The SaxonTraceListener is a trace listener meant for tracing the transform of XSLT for XSLT version 1.0, 2.0 and 3.0.
  * This trace listener can be attached to the underlying controller of a SAXON TransformerImpl object.
  */
 public class SaxonTraceListener extends StandardDiagnostics implements TraceListener, LadybugTraceListener {
     @Getter
-    private final TemplateTrace rootTrace = new TemplateTrace();
-    private TemplateTrace selectedTrace;
-    protected int indent = 0;
-    private final int detail = 3; // none=0; low=1; normal=2; high=3
-    /*@NotNull*/ private static StringBuffer spaceBuffer = new StringBuffer("                ");
+    private final Trace rootTrace = new Trace();
+    private Trace selectedTrace;
     //needed because the order of the methods to end a trace is reversed for some reason by saxon
     private boolean end;
 
@@ -69,11 +49,11 @@ public class SaxonTraceListener extends StandardDiagnostics implements TraceList
      */
     @Override
     public void open(Controller controller) {
-        String trace = "<trace " + "saxon-version=\"" + Version.getProductVersion() + "\" " + getOpeningAttributes() + ">\n";
-        TemplateTrace templateTrace = new TemplateTrace(trace, selectedTrace);
+        String traceContext = "<trace " + "saxon-version=\"" + Version.getProductVersion() + "\" " + getOpeningAttributes() + ">\n";
+        Trace trace = new Trace(traceContext, selectedTrace);
 
-        selectedTrace.addChildTrace(templateTrace);
-        selectedTrace = templateTrace;
+        selectedTrace.addChildTrace(trace);
+        selectedTrace = trace;
     }
 
     /**
@@ -90,8 +70,6 @@ public class SaxonTraceListener extends StandardDiagnostics implements TraceList
      */
     @Override
     public void close() {
-        indent--;
-
         selectedTrace.addTraceContext("</trace>");
     }
 
@@ -104,26 +82,20 @@ public class SaxonTraceListener extends StandardDiagnostics implements TraceList
      */
     @Override
     public void enter(Traceable info, Map<String, Object> properties, XPathContext context) {
-        if (isApplicable(info)) {
-            trace(info, properties, context);
-        }
-    }
-
-    private void trace(Traceable info, Map<String, Object> properties, XPathContext context) {
         StringBuilder trace = new StringBuilder();
         if (info instanceof Expression) {
             Expression expr = (Expression) info;
             if (expr instanceof FixedElement) {
                 String tag = "LRE";
-                trace.append(CreateTrace(info, tag, properties, true));
+                trace.append(CreateTraceContext(info, tag, properties));
                 selectedTrace.addTraceContext(trace + "\n");
             } else if (expr instanceof FixedAttribute) {
                 String tag = "ATTR";
-                trace.append(CreateTrace(info, tag, properties, true));
+                trace.append(CreateTraceContext(info, tag, properties));
                 selectedTrace.addTraceContext(trace + "\n");
             } else if (expr instanceof LetExpression) {
                 String tag = "xsl:variable";
-                trace.append(CreateTrace(info, tag, properties, true));
+                trace.append(CreateTraceContext(info, tag, properties));
                 selectedTrace.addTraceContext(trace + "\n");
             } else if (expr instanceof ForEach) {
                 ForEach forEach = (ForEach) expr;
@@ -131,16 +103,16 @@ public class SaxonTraceListener extends StandardDiagnostics implements TraceList
 
                 selectedTrace.setTraceId(traceId);
                 selectedTrace.setSystemId(forEach.getLocation().getSystemId());
-                selectedTrace.setTemplateMatch(forEach.getSelectValue());
+                selectedTrace.setTraceMatch(forEach.getSelectValue());
                 selectedTrace.setLineNumber(forEach.getLocation().getLineNumber());
                 selectedTrace.setColumnNumber(forEach.getLocation().getColumnNumber());
                 String tag = "xsl:for-each select=" + forEach.getSelectValue();
-                trace.append(CreateTrace(info, tag, properties, false));
+                trace.append(CreateTraceContext(info, tag, properties));
                 selectedTrace.addTraceContext(trace + "\n");
                 selectedTrace.setNodeType(NodeType.FOREACH);
-            } else if (expr.isCallOn(Trace.class)) {
+            } else if (expr.isCallOn(net.sf.saxon.functions.Trace.class)) {
                 String tag = "fn:trace";
-                trace.append(CreateTrace(info, tag, properties, true));
+                trace.append(CreateTraceContext(info, tag, properties));
                 selectedTrace.addTraceContext(trace + "\n");
             } else {
                 trace.append(expr.getExpressionName());
@@ -148,60 +120,64 @@ public class SaxonTraceListener extends StandardDiagnostics implements TraceList
             }
         } else if (info instanceof UserFunction) {
             String tag = "xsl:function";
-            trace.append(CreateTrace(info, tag, properties, true));
+            trace.append(CreateTraceContext(info, tag, properties));
             selectedTrace.addTraceContext(trace + "\n");
         } else if (info instanceof TemplateRule) {
             String traceId = ((TemplateRule) info).getLineNumber() + "_" + ((TemplateRule) info).getColumnNumber() + "_" + ((TemplateRule) info).getSystemId();
             selectedTrace.setTraceId(traceId);
             selectedTrace.setSystemId(((TemplateRule) info).getSystemId());
-            selectedTrace.setTemplateMatch(((TemplateRule) info).getMatchPattern().getOriginalText());
+            selectedTrace.setTraceMatch(((TemplateRule) info).getMatchPattern().getOriginalText());
 
             selectedTrace.setLineNumber(((TemplateRule) info).getLineNumber());
             selectedTrace.setColumnNumber(((TemplateRule) info).getColumnNumber());
 
             String tag = "xsl:template match=" + ((TemplateRule) info).getMatchPattern().getOriginalText();
-            trace.append(CreateTrace(info, tag, properties, false));
+            trace.append(CreateTraceContext(info, tag, properties));
             selectedTrace.addTraceContext(trace + "\n");
             selectedTrace.setNodeType(NodeType.MATCH_TEMPLATE);
         } else if (info instanceof NamedTemplate) {
             String traceId = ((NamedTemplate) info).getLineNumber() + "_" + ((NamedTemplate) info).getColumnNumber() + "_" + ((NamedTemplate) info).getSystemId();
             selectedTrace.setTraceId(traceId);
             selectedTrace.setSystemId(((NamedTemplate) info).getSystemId());
-            selectedTrace.setTemplateMatch(((NamedTemplate) info).getTemplateName().getDisplayName());
+            selectedTrace.setTraceMatch(((NamedTemplate) info).getTemplateName().getDisplayName());
 
             selectedTrace.setLineNumber(((NamedTemplate) info).getLineNumber());
             selectedTrace.setColumnNumber(((NamedTemplate) info).getColumnNumber());
 
             String tag = "xsl:template match=" + ((NamedTemplate) info).getTemplateName().getDisplayName();
-            trace.append(CreateTrace(info, tag, properties, false));
+            trace.append(CreateTraceContext(info, tag, properties));
             selectedTrace.addTraceContext(trace + "\n");
             selectedTrace.setNodeType(NodeType.MATCH_TEMPLATE);
         } else if (info instanceof GlobalParam) {
             String tag = "xsl:param";
-            trace.append(CreateTrace(info, tag, properties, true));
+            trace.append(CreateTraceContext(info, tag, properties));
             selectedTrace.addTraceContext(trace + "\n");
         } else if (info instanceof GlobalVariable) {
             String tag = "xsl:variable";
-            trace.append(CreateTrace(info, tag, properties, true));
+            trace.append(CreateTraceContext(info, tag, properties));
             selectedTrace.addTraceContext(trace + "\n");
-        } else if (info instanceof Trace) {
+        } else if (info instanceof net.sf.saxon.functions.Trace) {
             String tag = "fn:trace";
-            trace.append(CreateTrace(info, tag, properties, true));
+            trace.append(CreateTraceContext(info, tag, properties));
             selectedTrace.addTraceContext(trace + "\n");
         } else {
             String tag = "misc";
-            trace.append(CreateTrace(info, tag, properties, true));
+            trace.append(CreateTraceContext(info, tag, properties));
             selectedTrace.addTraceContext(trace + "\n");
         }
     }
 
-    private String CreateTrace(Traceable info, String tag, Map<String, Object> properties, boolean useIndents) {
+    /**
+     * Creates  a trace context based on the given information
+     *
+     * @param info       A trace object that the trace context will be based on
+     * @param tag        A tag that will be put on the end of the context
+     * @param properties Properties of the trace object
+     */
+    private String CreateTraceContext(Traceable info, String tag, Map<String, Object> properties) {
         Location loc = info.getLocation();
         String file = abbreviateLocationURI(loc.getSystemId());
         StringBuilder trace = new StringBuilder();
-        if (useIndents) {
-            trace.append(spaces(indent));
-        }
         trace.append('<').append(tag).append(" ");
         for (Map.Entry<String, Object> entry : properties.entrySet()) {
             Object val = entry.getValue();
@@ -224,8 +200,6 @@ public class SaxonTraceListener extends StandardDiagnostics implements TraceList
 
         trace.append(" module=\"").append(escape(file)).append('"');
         trace.append(">");
-        indent++;
-
         return trace.toString();
     }
 
@@ -271,13 +245,8 @@ public class SaxonTraceListener extends StandardDiagnostics implements TraceList
      *
      * @param info information about trace
      */
-
     @Override
     public void leave(Traceable info) {
-        if (isApplicable(info)) {
-            indent--;
-        }
-
         if (info instanceof TemplateRule) {
             String traceId = ((TemplateRule) info).getLineNumber() + "_" + ((TemplateRule) info).getColumnNumber() + "_" + ((TemplateRule) info).getSystemId();
             if (Objects.equals(selectedTrace.getTraceId(), traceId)) {
@@ -288,34 +257,11 @@ public class SaxonTraceListener extends StandardDiagnostics implements TraceList
             if (Objects.equals(selectedTrace.getTraceId(), traceId)) {
                 end = true;
             }
-        } else if (info instanceof  ForEach){
+        } else if (info instanceof ForEach) {
             String traceId = info.getLocation().getLineNumber() + "_" + info.getLocation().getColumnNumber() + "_" + info.getLocation().getSystemId();
             if (Objects.equals(selectedTrace.getTraceId(), traceId)) {
                 end = true;
             }
-        }
-    }
-
-    /**
-     * @param info shows traceable info
-     * @return bool to see if trace should be written to output stream
-     */
-    protected boolean isApplicable(Traceable info) {
-        return level(info) <= detail;
-    }
-
-    /**
-     * @param info information about the trace
-     * @return the level of detail that is allowed
-     */
-    protected int level(Traceable info) {
-        if (info instanceof TraceableComponent) {
-            return 1;
-        }
-        if (info instanceof Instruction) {
-            return 2;
-        } else {
-            return 3;
         }
     }
 
@@ -326,17 +272,16 @@ public class SaxonTraceListener extends StandardDiagnostics implements TraceList
      */
     @Override
     public void startCurrentItem(Item item) {
-        if (item instanceof TinyElementImpl && detail > 0) {
+        if (item instanceof TinyElementImpl) {
             TinyElementImpl curr = (TinyElementImpl) item;
-            String trace = "<source node=\"" + Navigator.getPath(curr)
+            String traceContext = "<source node=\"" + Navigator.getPath(curr)
                     + "\" file=\"" + curr.getSystemId()
                     + "\">\n";
-            TemplateTrace templateTrace = new TemplateTrace(trace, selectedTrace);
+            Trace trace = new Trace(traceContext, selectedTrace);
 
-            selectedTrace.addChildTrace(templateTrace);
-            selectedTrace = templateTrace;
+            selectedTrace.addChildTrace(trace);
+            selectedTrace = trace;
         }
-        indent++;
     }
 
     /**
@@ -346,8 +291,7 @@ public class SaxonTraceListener extends StandardDiagnostics implements TraceList
      */
     @Override
     public void endCurrentItem(Item item) {
-        indent--;
-        if (item instanceof NodeInfo && detail > 0) {
+        if (item instanceof NodeInfo) {
             NodeInfo curr = (NodeInfo) item;
 
             String trace = "</source><!-- " + Navigator.getPath(curr) + " -->";
@@ -358,20 +302,6 @@ public class SaxonTraceListener extends StandardDiagnostics implements TraceList
                 end = false;
             }
         }
-    }
-
-    /**
-     * Get n spaces
-     *
-     * @param n determines how much whitespace is to be added
-     * @return returns a certain amount of whitespace
-     */
-
-    protected static String spaces(int n) {
-        while (spaceBuffer.length() < n) {
-            spaceBuffer.append(spaceBuffer);
-        }
-        return spaceBuffer.substring(0, n);
     }
 
     /**

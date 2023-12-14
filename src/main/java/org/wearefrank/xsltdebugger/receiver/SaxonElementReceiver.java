@@ -25,9 +25,9 @@ public class SaxonElementReceiver implements Receiver {
     @Setter
     private String systemId;
 
-    private Stack<String> endElement;
+    private final Stack<String> endElement;
 
-    private SaxonTraceListener traceListener;
+    private final SaxonTraceListener traceListener;
 
     public SaxonElementReceiver(SaxonTraceListener traceListener){
         this.traceListener = traceListener;
@@ -35,19 +35,19 @@ public class SaxonElementReceiver implements Receiver {
     }
 
     @Override
-    public void open() throws XPathException {
+    public void open() {
     }
 
     @Override
-    public void startDocument(int properties) throws XPathException {
+    public void startDocument(int properties) {
     }
 
     @Override
-    public void endDocument() throws XPathException {
+    public void endDocument() {
     }
 
     @Override
-    public void setUnparsedEntity(String name, String systemID, String publicID) throws XPathException {
+    public void setUnparsedEntity(String name, String systemID, String publicID) {
         traceListener.addElementContext(systemID + ": " + name);
     }
 
@@ -79,29 +79,28 @@ public class SaxonElementReceiver implements Receiver {
     }
 
     @Override
-    public void endElement() throws XPathException {
+    public void endElement() {
         if(!endElement.isEmpty()) {
             traceListener.addElementContext(endElement.pop());
         }
     }
 
     @Override
-    public void characters(CharSequence chars, Location location, int properties) throws XPathException {
+    public void characters(CharSequence chars, Location location, int properties) {
         traceListener.addElementContext("CONTEXT: " + chars);
     }
 
     @Override
-    public void processingInstruction(String name, CharSequence data, Location location, int properties) throws XPathException {
+    public void processingInstruction(String name, CharSequence data, Location location, int properties) {
         traceListener.addElementContext("processingInstruction: " + name + "  " + data);
     }
 
     @Override
-    public void comment(CharSequence content, Location location, int properties) throws XPathException {
+    public void comment(CharSequence content, Location location, int properties) {
         traceListener.addElementContext("COMMENT: " + content);
     }
 
     @Override
-    public void close() throws XPathException {
-        //do nothing
+    public void close() {
     }
 }
