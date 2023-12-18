@@ -50,7 +50,6 @@ public class SaxonTraceListener extends StandardDiagnostics implements TraceList
      */
     @Override
     public void open(Controller controller) {
-        System.out.println("open");
         String traceContext = "<trace " + "saxon-version=\"" + Version.getProductVersion() + "\" " + getOpeningAttributes() + ">\n";
         Trace trace = new Trace(traceContext, selectedTrace);
 
@@ -72,7 +71,6 @@ public class SaxonTraceListener extends StandardDiagnostics implements TraceList
      */
     @Override
     public void close() {
-        System.out.println("close");
         selectedTrace.addTraceContext("</trace>");
     }
 
@@ -85,7 +83,6 @@ public class SaxonTraceListener extends StandardDiagnostics implements TraceList
      */
     @Override
     public void enter(Traceable info, Map<String, Object> properties, XPathContext context) {
-        System.out.println("enter");
         StringBuilder trace = new StringBuilder();
         if (info instanceof Expression) {
             Expression expr = (Expression) info;
@@ -251,7 +248,6 @@ public class SaxonTraceListener extends StandardDiagnostics implements TraceList
      */
     @Override
     public void leave(Traceable info) {
-        System.out.println("leave");
         if (info instanceof TemplateRule) {
             String traceId = ((TemplateRule) info).getLineNumber() + "_" + ((TemplateRule) info).getColumnNumber() + "_" + ((TemplateRule) info).getSystemId();
             if (Objects.equals(selectedTrace.getTraceId(), traceId)) {
@@ -278,7 +274,6 @@ public class SaxonTraceListener extends StandardDiagnostics implements TraceList
     @Override
     public void startCurrentItem(Item item) {
         if (item instanceof TinyElementImpl) {
-            System.out.println("start item");
             NodeInfo curr = (NodeInfo) item;
             String traceContext = "<source node=\"" + Navigator.getPath(curr)
                     + "\" file=\"" + curr.getSystemId()
@@ -287,7 +282,6 @@ public class SaxonTraceListener extends StandardDiagnostics implements TraceList
 
             selectedTrace.addChildTrace(trace);
             selectedTrace = trace;
-            System.out.println("END start item");
         }
     }
 
@@ -299,7 +293,6 @@ public class SaxonTraceListener extends StandardDiagnostics implements TraceList
     @Override
     public void endCurrentItem(Item item) {
         if (item instanceof TinyElementImpl) {
-            System.out.println("end item");
             NodeInfo curr = (NodeInfo) item;
 
             String trace = "</source><!-- " + Navigator.getPath(curr) + " -->";
@@ -309,7 +302,6 @@ public class SaxonTraceListener extends StandardDiagnostics implements TraceList
                 selectedTrace = selectedTrace.getParentTrace();
                 end = false;
             }
-            System.out.println("END end item");
         }
     }
 
@@ -324,7 +316,6 @@ public class SaxonTraceListener extends StandardDiagnostics implements TraceList
     }
 
     public void addElementContext(String context) {
-        System.out.println("element context");
         selectedTrace.addTraceContext(context + "\n");
     }
 }
