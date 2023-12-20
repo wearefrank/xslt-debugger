@@ -93,11 +93,11 @@ public class XSLTTraceReporter {
             if (!XPathUtil.fileHasNode("import", xslDocument))
                 return; //If there are no import nodes present in the file, return.
 
-            NodeList nodeList = XPathUtil.getNodesByXPath("//*[local-name()='import']", xslDocument);
+            List<Node> nodeList = XPathUtil.getNodesByXPath("//*[local-name()='import']",xslDocument);
             testTool.startpoint(correlationId, xslFile.getName(), "Imported XSL", "Imported XSL files");
             // Loop over all the 'import' nodes (each node references 1 XSL file in its 'href' attribute)
-            for (int i = 0; i < nodeList.getLength(); i++) {
-                Element element = (Element) nodeList.item(i); // Get the import element from current import node
+            for (Node node : nodeList) {
+                Element element = (Element) node; // Get the import element from current import node
                 String importPath = element.getAttribute("href"); // Grab the file path from the 'href' attribute
                 Path xslFilePath = Paths.get(importPath);
                 this.allXSLFiles.add(xslFilePath.toFile()); // Add the imported XSL file to global variable for later reference
@@ -162,7 +162,7 @@ public class XSLTTraceReporter {
             for (Trace childTrace : trace.getChildTraces()) {
                 if (childTrace.getNodeType() == NodeType.MATCH_TEMPLATE) {
                     if (childTrace.getTraceMatch() != null) {
-                        testTool.startpoint(correlationId, childTrace.getTraceId(), "template match=" + childTrace.getTraceMatch(), childTrace.getWholeTrace(false));
+                        testTool.startpoint(correlationId, childTrace.getTraceId(), "template match=" + childTrace.getTraceMatch(), printTemplateXml(childTrace));
                         printTraceXSL(childTrace);
                     }
                     loopThroughAllTemplates(childTrace);
@@ -170,11 +170,12 @@ public class XSLTTraceReporter {
                         testTool.endpoint(correlationId, childTrace.getTraceId(), "template match=" + childTrace.getTraceMatch(), childTrace.getWholeTrace(false));
                     }
                 } else if (childTrace.getNodeType() == NodeType.FOREACH) {
-                    testTool.startpoint(correlationId, childTrace.getTraceId(), "for-each select=" + childTrace.getTraceMatch(), childTrace.getWholeTrace(false));
+                    testTool.startpoint(correlationId, childTrace.getTraceId(), "for-each select=" + childTrace.getTraceMatch(), printTemplateXml(childTrace));
                     printTraceXSL(childTrace);
                     loopThroughAllTemplates(childTrace);
                     testTool.endpoint(correlationId, childTrace.getTraceId(), "for-each select=" + childTrace.getTraceMatch(), childTrace.getWholeTrace(false));
                 }
+
                 //todo: save this code until solution for optional built-in-rules has been made
 //                else {
 //                    testTool.startpoint(correlationId, templateTrace.getTraceId(), "built-in-rule match=" + templateTrace.getTemplateMatch() + " node=" + templateTrace.getSelectedNode(), templateTrace.getWholeTrace(false));
@@ -197,18 +198,17 @@ public class XSLTTraceReporter {
         for (File file : allXSLFiles) {
             boolean hasMatchAttribute = false;
             Document doc = DocumentUtil.buildDocument(file);
+          if (trace.getNodeType() == NodeType.MATCH_TEMPLATE || trace.getNodeType() == NodeType.BUILT_IN_TEMPLATE) {
+            List<Node> nodeList = XPathUtil.getNodesByXPath("//*[local-name()='template']", doc);
             StringWriter result = new StringWriter();
-            if (trace.getNodeType() == NodeType.MATCH_TEMPLATE || trace.getNodeType() == NodeType.BUILT_IN_TEMPLATE) {
-                NodeList nodeList = XPathUtil.getNodesByXPath("//*[local-name()='template']", doc);
 
-                for (int i = 0; i < nodeList.getLength(); i++) {
-                    Element element = (Element) nodeList.item(i);
-
-                    if (element.getAttribute("match").equals(trace.getTraceMatch())) {
-                        hasMatchAttribute = true;
-                        StringBuilder stringBuilder = new StringBuilder();
-                        getNodeIndentation(stringBuilder, nodeList.item(i), 0, true);
-                        result.append(stringBuilder).append("\n");
+            for (Node node: nodeList) {
+                Element element = (Element) node;
+                if (element.getAttribute("match").equals(trace.getTemplateMatch())) {
+                    hasMatchAttribute = true;
+                    StringBuilder stringBuilder = new StringBuilder();
+                    getNodeIndentation(stringBuilder, node, 0, true);
+                    result.append(stringBuilder).append("\n");
                     }
                 }
                 if (!hasMatchAttribute) continue;
@@ -235,12 +235,29 @@ public class XSLTTraceReporter {
     }
 
     /**
-     * TODO: get input XML of the XSLT step using XPath
      * Shows the affected XML of the XSLT trace
-     */
-    private void getTemplateXML(Node templateNode) {
+     * */
+    private String printTemplateXml(Node templateNode) {
         try {
+            List<Node> nodeList;
+
             Document doc = DocumentUtil.buildDocument(xmlFile);
+            String parentMatch = "/";
+            if(trace.getParentTrace().getTemplateMatch() != null){
+                parentMatch = trace.getParentTrace().getTemplateMatch();
+                nodeList =  XPathUtil.getNodesByXPath(parentMatch+"/"+trace.getTemplateMatch(), doc);
+            } else {
+                nodeList =  XPathUtil.getNodesByXPath(parentMatch+trace.getTemplateMatch()+"*", doc);
+            }
+
+            StringWriter result = new StringWriter();
+
+            for (Node node: nodeList) {
+                StringBuilder stringBuilder = new StringBuilder();
+                getNodeIndentation(stringBuilder, node, 0, false);
+                result.append(stringBuilder).append("\n");
+            }
+            return result.toString();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
