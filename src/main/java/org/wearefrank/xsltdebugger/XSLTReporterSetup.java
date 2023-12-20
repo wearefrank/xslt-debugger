@@ -4,11 +4,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 import org.wearefrank.xsltdebugger.receiver.SaxonElementReceiver;
-import org.wearefrank.xsltdebugger.receiver.SaxonOutputReceiver;
+import org.wearefrank.xsltdebugger.receiver.SaxonOutputSplitter;
 import org.wearefrank.xsltdebugger.receiver.SaxonWriterReceiver;
 import org.wearefrank.xsltdebugger.trace.LadybugTraceListener;
-import org.wearefrank.xsltdebugger.trace.SaxonTemplateTraceListener;
-import org.wearefrank.xsltdebugger.trace.XalanTemplateTraceListener;
+import org.wearefrank.xsltdebugger.trace.SaxonTraceListener;
+import org.wearefrank.xsltdebugger.trace.XalanTraceListener;
 
 import javax.xml.transform.Result;
 import javax.xml.transform.stream.StreamResult;
@@ -45,7 +45,7 @@ public class XSLTReporterSetup {
     }
 
     private void xalanTransform() {
-        XalanTemplateTraceListener traceListener = new XalanTemplateTraceListener();
+        XalanTraceListener traceListener = new XalanTraceListener();
         this.traceListener = traceListener;
 
         traceListener.m_traceElements = true;
@@ -72,14 +72,14 @@ public class XSLTReporterSetup {
             net.sf.saxon.TransformerFactoryImpl transformerFactory = new net.sf.saxon.TransformerFactoryImpl();
             net.sf.saxon.jaxp.TransformerImpl transformer = (net.sf.saxon.jaxp.TransformerImpl) transformerFactory.newTransformer(new StreamSource(xslFile.getAbsolutePath()));
 
-            SaxonTemplateTraceListener traceListener = new SaxonTemplateTraceListener();
+            SaxonTraceListener traceListener = new SaxonTraceListener();
             this.traceListener = traceListener;
 
             transformer.getUnderlyingController().setTraceListener(traceListener);
 
             SaxonElementReceiver elementReceiver = new SaxonElementReceiver(traceListener);
             SaxonWriterReceiver writerReceiver = new SaxonWriterReceiver(writer);
-            SaxonOutputReceiver receiver = new SaxonOutputReceiver(transformer.getUnderlyingController().makeBuilder(), writerReceiver, elementReceiver);
+            SaxonOutputSplitter receiver = new SaxonOutputSplitter(transformer.getUnderlyingController().makeBuilder(), writerReceiver, elementReceiver);
 
             transformer.getUnderlyingController().getInitialMode().setModeTracing(true);
 
