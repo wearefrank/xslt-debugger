@@ -124,17 +124,19 @@ public class SaxonTraceListener extends StandardDiagnostics implements TraceList
             selectedTrace.addTraceContext(trace + "\n");
         } else if (info instanceof TemplateRule) {
             String traceId = ((TemplateRule) info).getLineNumber() + "_" + ((TemplateRule) info).getColumnNumber() + "_" + ((TemplateRule) info).getSystemId();
-            selectedTrace.setTraceId(traceId);
-            selectedTrace.setSystemId(((TemplateRule) info).getSystemId());
-            selectedTrace.setTraceMatch(((TemplateRule) info).getMatchPattern().getOriginalText());
+            if(selectedTrace.getTraceId() == null) {
+                selectedTrace.setTraceId(traceId);
+                selectedTrace.setSystemId(((TemplateRule) info).getSystemId());
+                selectedTrace.setTraceMatch(((TemplateRule) info).getMatchPattern().getOriginalText());
 
-            selectedTrace.setLineNumber(((TemplateRule) info).getLineNumber());
-            selectedTrace.setColumnNumber(((TemplateRule) info).getColumnNumber());
+                selectedTrace.setLineNumber(((TemplateRule) info).getLineNumber());
+                selectedTrace.setColumnNumber(((TemplateRule) info).getColumnNumber());
 
-            String tag = "xsl:template match=" + ((TemplateRule) info).getMatchPattern().getOriginalText();
-            trace.append(CreateTraceContext(info, tag, properties));
-            selectedTrace.addTraceContext(trace + "\n");
-            selectedTrace.setNodeType(NodeType.MATCH_TEMPLATE);
+                String tag = "xsl:template match=" + ((TemplateRule) info).getMatchPattern().getOriginalText();
+                trace.append(CreateTraceContext(info, tag, properties));
+                selectedTrace.addTraceContext(trace + "\n");
+                selectedTrace.setNodeType(NodeType.MATCH_TEMPLATE);
+            }
         } else if (info instanceof NamedTemplate) {
             String traceId = ((NamedTemplate) info).getLineNumber() + "_" + ((NamedTemplate) info).getColumnNumber() + "_" + ((NamedTemplate) info).getSystemId();
             selectedTrace.setTraceId(traceId);
@@ -272,8 +274,12 @@ public class SaxonTraceListener extends StandardDiagnostics implements TraceList
      */
     @Override
     public void startCurrentItem(Item item) {
+        //startCurrentItem is currently only searching for TinyElementImpl.
+        // This class is extended by most of the important classes to show trace.
+
+        //must be the same if-statement for both endCurrentItem and startCurrentItem methods
         if (item instanceof TinyElementImpl) {
-            TinyElementImpl curr = (TinyElementImpl) item;
+            NodeInfo curr = (NodeInfo) item;
             String traceContext = "<source node=\"" + Navigator.getPath(curr)
                     + "\" file=\"" + curr.getSystemId()
                     + "\">\n";
@@ -291,7 +297,11 @@ public class SaxonTraceListener extends StandardDiagnostics implements TraceList
      */
     @Override
     public void endCurrentItem(Item item) {
-        if (item instanceof NodeInfo) {
+        //endCurrentItem is currently only searching for TinyElementImpl.
+        //This class is extended by most of the important classes to show trace.
+
+        //must be the same if-statement for both endCurrentItem and startCurrentItem methods
+        if (item instanceof TinyElementImpl) {
             NodeInfo curr = (NodeInfo) item;
 
             String trace = "</source><!-- " + Navigator.getPath(curr) + " -->";
