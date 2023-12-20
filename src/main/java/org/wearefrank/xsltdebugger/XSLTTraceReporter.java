@@ -198,30 +198,29 @@ public class XSLTTraceReporter {
         for (File file : allXSLFiles) {
             boolean hasMatchAttribute = false;
             Document doc = DocumentUtil.buildDocument(file);
-          if (trace.getNodeType() == NodeType.MATCH_TEMPLATE || trace.getNodeType() == NodeType.BUILT_IN_TEMPLATE) {
-            List<Node> nodeList = XPathUtil.getNodesByXPath("//*[local-name()='template']", doc);
             StringWriter result = new StringWriter();
-
-            for (Node node: nodeList) {
-                Element element = (Element) node;
-                if (element.getAttribute("match").equals(trace.getTemplateMatch())) {
-                    hasMatchAttribute = true;
-                    StringBuilder stringBuilder = new StringBuilder();
-                    getNodeIndentation(stringBuilder, node, 0, true);
-                    result.append(stringBuilder).append("\n");
+            if (trace.getNodeType() == NodeType.MATCH_TEMPLATE || trace.getNodeType() == NodeType.BUILT_IN_TEMPLATE) {
+                List<Node> nodeList = XPathUtil.getNodesByXPath("//*[local-name()='template']", doc);
+                for (Node node : nodeList) {
+                    Element element = (Element) node;
+                    if (element.getAttribute("match").equals(trace.getTraceMatch())) {
+                        hasMatchAttribute = true;
+                        StringBuilder stringBuilder = new StringBuilder();
+                        getNodeIndentation(stringBuilder, node, 0, true);
+                        result.append(stringBuilder).append("\n");
                     }
                 }
                 if (!hasMatchAttribute) continue;
             } else if (trace.getNodeType() == NodeType.FOREACH) {
-                NodeList nodeList = XPathUtil.getNodesByXPath("//*[local-name()='for-each']", doc);
+                List<Node> nodeList = XPathUtil.getNodesByXPath("//*[local-name()='for-each']", doc);
 
-                for (int i = 0; i < nodeList.getLength(); i++) {
-                    Element element = (Element) nodeList.item(i);
+                for (Node node : nodeList) {
+                    Element element = (Element) node;
 
                     if (element.getAttribute("select").equals(trace.getTraceMatch())) {
                         hasMatchAttribute = true;
                         StringBuilder stringBuilder = new StringBuilder();
-                        getNodeIndentation(stringBuilder, nodeList.item(i), 0, true);
+                        getNodeIndentation(stringBuilder, node, 0, true);
                         result.append(stringBuilder).append("\n");
                     }
                 }
@@ -236,23 +235,23 @@ public class XSLTTraceReporter {
 
     /**
      * Shows the affected XML of the XSLT trace
-     * */
-    private String printTemplateXml(Node templateNode) {
+     */
+    private String printTemplateXml(Trace trace) {
         try {
             List<Node> nodeList;
 
             Document doc = DocumentUtil.buildDocument(xmlFile);
             String parentMatch = "/";
-            if(trace.getParentTrace().getTemplateMatch() != null){
-                parentMatch = trace.getParentTrace().getTemplateMatch();
-                nodeList =  XPathUtil.getNodesByXPath(parentMatch+"/"+trace.getTemplateMatch(), doc);
+            if (trace.getParentTrace().getTraceMatch() != null) {
+                parentMatch = trace.getParentTrace().getTraceMatch();
+                nodeList = XPathUtil.getNodesByXPath(parentMatch + "/" + trace.getTraceMatch(), doc);
             } else {
-                nodeList =  XPathUtil.getNodesByXPath(parentMatch+trace.getTemplateMatch()+"*", doc);
+                nodeList = XPathUtil.getNodesByXPath(parentMatch + trace.getTraceMatch() + "*", doc);
             }
 
             StringWriter result = new StringWriter();
 
-            for (Node node: nodeList) {
+            for (Node node : nodeList) {
                 StringBuilder stringBuilder = new StringBuilder();
                 getNodeIndentation(stringBuilder, node, 0, false);
                 result.append(stringBuilder).append("\n");
