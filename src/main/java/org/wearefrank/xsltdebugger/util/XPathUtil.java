@@ -28,17 +28,13 @@ public class XPathUtil {
     /**
      * Searches for the given node in a document
      *
-     * @param nodeName The name of the node to look for
+     * @param nodeName The name of the unprefixed node to look for
      * @param doc      document used to search
      * @return returns true if the given node exists
      */
     public static boolean fileHasNode(String nodeName, Document doc) {
         try {
-            if (nodeName.contains(":")) {
-                //if the given node has a namespace prefix, strip the prefix.
-                return getNodesByXPath("//*[local-name()='" + nodeName.substring(nodeName.indexOf(":") + 1) + "']", doc).isEmpty();
-            }
-            return getNodesByXPath("//*[local-name()='" + nodeName + "']", doc).isEmpty();
+            return !getNodesByXPath("//*[local-name()='" + nodeName + "']", doc).isEmpty();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -47,9 +43,9 @@ public class XPathUtil {
     /**
      * Gets the NodeList from a document with xPath expression
      *
-     * @param doc             document to convert to Nodelist
+     * @param doc             document to convert to NodeList
      * @param expression given xPathExpression to search by
-     * @return return the nodelist from xPathExpression
+     * @return return the NodeList from xPathExpression
      * @throws XPathExpressionException if there is an error in the XPath expression
      */
     public static List<Node> getNodesByXPath(String expression, Document doc) throws XPathExpressionException {
