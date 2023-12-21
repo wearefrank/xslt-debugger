@@ -90,20 +90,33 @@ public class XSLTTraceReporter {
     private void printImportedXsl() {
         try {
             Document xslDocument = DocumentUtil.buildDocument(xslFile);
-            if (!XPathUtil.fileHasNode("import", xslDocument))
-                return; //If there are no import nodes present in the file, return.
+            if(XPathUtil.fileHasNode("include", xslDocument)) {
 
-            List<Node> nodeList = XPathUtil.getNodesByXPath("//*[local-name()='import']",xslDocument);
-            testTool.startpoint(correlationId, xslFile.getName(), "Imported XSL", "Imported XSL files");
-            // Loop over all the 'import' nodes (each node references 1 XSL file in its 'href' attribute)
-            for (Node node : nodeList) {
-                Element element = (Element) node; // Get the import element from current import node
-                String importPath = element.getAttribute("href"); // Grab the file path from the 'href' attribute
-                Path xslFilePath = Paths.get(importPath);
-                this.allXSLFiles.add(xslFilePath.toFile()); // Add the imported XSL file to global variable for later reference
-                writeFileToInfopoint(xslFilePath); //write the entire XSL file to the report as an infopoint
+                List<Node> nodeList = XPathUtil.getNodesByXPath("//*[local-name()='include']", xslDocument);
+                testTool.startpoint(correlationId, xslFile.getName(), "Included XSL", "Included XSL files");
+                // Loop over all the 'included' nodes (each node references 1 XSL file in its 'href' attribute)
+                for (Node node : nodeList) {
+                    Element element = (Element) node; // Get the include element from current import node
+                    String includePath = element.getAttribute("href"); // Grab the file path from the 'href' attribute
+                    Path xslFilePath = Paths.get(includePath);
+                    this.allXSLFiles.add(xslFilePath.toFile()); // Add the included XSL file to global variable for later reference
+                    writeFileToInfopoint(xslFilePath); //write the entire XSL file to the report as an infopoint
+                }
+                testTool.endpoint(correlationId, xslFile.getName(), "Included XSL", "Included XSL files");
             }
-            testTool.endpoint(correlationId, xslFile.getName(), "Imported XSL", "Imported XSL files");
+            if (XPathUtil.fileHasNode("import", xslDocument)) {
+                List<Node> nodeList = XPathUtil.getNodesByXPath("//*[local-name()='import']", xslDocument);
+                testTool.startpoint(correlationId, xslFile.getName(), "Imported XSL", "Imported XSL files");
+                // Loop over all the 'import' nodes (each node references 1 XSL file in its 'href' attribute)
+                for (Node node : nodeList) {
+                    Element element = (Element) node; // Get the import element from current import node
+                    String importPath = element.getAttribute("href"); // Grab the file path from the 'href' attribute
+                    Path xslFilePath = Paths.get(importPath);
+                    this.allXSLFiles.add(xslFilePath.toFile()); // Add the imported XSL file to global variable for later reference
+                    writeFileToInfopoint(xslFilePath); //write the entire XSL file to the report as an infopoint
+                }
+                testTool.endpoint(correlationId, xslFile.getName(), "Imported XSL", "Imported XSL files");
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
