@@ -241,14 +241,11 @@ public class XSLTTraceReporter {
             List<Node> nodeList;
 
             Document doc = DocumentUtil.buildDocument(xmlFile);
-            String parentMatch = "/";
-            if (trace.getParentTrace().getTraceMatch() != null) {
-                parentMatch = trace.getParentTrace().getTraceMatch();
-                nodeList = XPathUtil.getNodesByXPath(parentMatch + "/" + trace.getTraceMatch(), doc);
+            if (trace.getTraceMatch().startsWith("/")) {
+                nodeList = XPathUtil.getNodesByXPath(trace.getTraceMatch(), doc);
             } else {
-                nodeList = XPathUtil.getNodesByXPath(parentMatch + trace.getTraceMatch() + "*", doc);
+                nodeList = XPathUtil.getNodesByXPath("//" + trace.getTraceMatch(), doc);
             }
-
             StringWriter result = new StringWriter();
 
             for (Node node : nodeList) {
