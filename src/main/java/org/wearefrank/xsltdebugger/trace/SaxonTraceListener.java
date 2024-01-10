@@ -80,6 +80,9 @@ public class SaxonTraceListener extends StandardDiagnostics implements TraceList
      * @param properties properties of the trace
      * @param context    given xpath context
      */
+    /*Enter method is being called from classes that inherit the Traceable interface in SAXON.
+    * To add more support for other elements to the TraceListener, add the necessary object type in the if-statement list below and
+    * call the startCurrentItem, enter and endCurrentItem method respectively where necessary in the specified TraceAble object.*/
     @Override
     public void enter(Traceable info, Map<String, Object> properties, XPathContext context) {
         StringBuilder trace = new StringBuilder();

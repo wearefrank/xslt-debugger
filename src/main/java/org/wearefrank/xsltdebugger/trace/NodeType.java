@@ -4,7 +4,8 @@ package org.wearefrank.xsltdebugger.trace;
  * - template matches
  * - built in templates
  * - for-each
- * extend list if more are necessary*/
+ */
+/*extend list if more types are necessary*/
 public enum NodeType {
     MATCH_TEMPLATE,
     BUILT_IN_TEMPLATE,
