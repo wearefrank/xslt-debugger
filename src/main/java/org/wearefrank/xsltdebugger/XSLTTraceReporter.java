@@ -33,7 +33,7 @@ public class XSLTTraceReporter {
     private final List<File> allXSLFiles;
     private final String correlationId;
 
-    public XSLTTraceReporter(TestTool testTool, File xmlFile, File xslFile, Trace rootTrace, String xsltResult, String correlationId) {
+    private XSLTTraceReporter(TestTool testTool, File xmlFile, File xslFile, Trace rootTrace, String xsltResult, String correlationId) {
         this.testTool = testTool;
         this.xmlFile = xmlFile;
         this.xslFile = xslFile;

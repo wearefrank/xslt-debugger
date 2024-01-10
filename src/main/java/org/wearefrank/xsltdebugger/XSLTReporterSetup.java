@@ -32,6 +32,7 @@ public class XSLTReporterSetup {
         this.writer = new StringWriter();
     }
 
+    /*If Saxon-HE 12.3 will ever be used, there will also need to be a check if the xslt version is 4.0*/
     public void transform() {
         if (xsltVersion == 1) {
             writer = new StringWriter();
@@ -44,6 +45,8 @@ public class XSLTReporterSetup {
         }
     }
 
+    /*Since Salan also has a TransformerImpl/TransformerFactoryImpl, the namespace will need to be completely written down as to avoid conflicts between
+     * the two packages.*/
     private void xalanTransform() {
         XalanTraceListener traceListener = new XalanTraceListener();
         this.traceListener = traceListener;
@@ -67,6 +70,10 @@ public class XSLTReporterSetup {
         }
     }
 
+    /*Saxon has multiple ways to get a transformer for XSLT. The only way to connect the SaxonOutputSplitter and the TraceListener at the same time is
+    * by using the TransformerFactoryImpl and making a TransformImpl using that factory object.
+    * Since Xalan also has a TransformerImpl/TransformerFactoryImpl, the namespace will need to be completely written down as to avoid conflicts between
+    * the two packages.*/
     private void saxonTransform() {
         try {
             net.sf.saxon.TransformerFactoryImpl transformerFactory = new net.sf.saxon.TransformerFactoryImpl();

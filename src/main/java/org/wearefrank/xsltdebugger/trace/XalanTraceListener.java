@@ -25,6 +25,9 @@ import java.util.Objects;
  * The XalanTraceListener is a trace listener meant for tracing the transform of XSLT for XSLT version 1.0.
  * This trace listener can be attached to the underlying controller of a XALAN TransformerImpl object.
  */
+/*Expansion of this class for supporting more feature would require altering the XALAN source code.
+* Only from the XALAN library are the method calls made.
+* This class is pretty much complete apart from optional changes for how the outcome looks.*/
 public class XalanTraceListener implements TraceListenerEx2, LadybugTraceListener {
 
     @Getter
