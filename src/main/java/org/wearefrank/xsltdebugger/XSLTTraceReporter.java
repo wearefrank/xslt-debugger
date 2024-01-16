@@ -26,14 +26,14 @@ import java.util.List;
 
 public class XSLTTraceReporter {
     private final TestTool testTool;
-    private final File xmlFile;
-    private final File xslFile;
+    private final XMLTransformationContext xmlFile;
+    private final XMLTransformationContext xslFile;
     private final String xsltResult;
     private final Trace rootTrace;
-    private final List<File> allXSLFiles;
+    private final List<XMLTransformationContext> allXSLFiles;
     private final String correlationId;
 
-    private XSLTTraceReporter(TestTool testTool, File xmlFile, File xslFile, Trace rootTrace, String xsltResult, String correlationId) {
+    private XSLTTraceReporter(TestTool testTool, XMLTransformationContext xmlFile, XMLTransformationContext xslFile, Trace rootTrace, String xsltResult, String correlationId) {
         this.testTool = testTool;
         this.xmlFile = xmlFile;
         this.xslFile = xslFile;
@@ -45,7 +45,7 @@ public class XSLTTraceReporter {
     }
 
     public static void initiate(TestTool testTool, XSLTReporterSetup reporterSetup, String correlationId, String reportName) {
-        XSLTTraceReporter reporter = new XSLTTraceReporter(testTool, reporterSetup.getXmlFile(), reporterSetup.getXslFile(), reporterSetup.getTraceListener().getRootTrace(), reporterSetup.getWriter().toString(), correlationId);
+        XSLTTraceReporter reporter = new XSLTTraceReporter(testTool, reporterSetup.getXmlContext(), reporterSetup.getXslContext(), reporterSetup.getTraceListener().getRootTrace(), reporterSetup.getWriter().toString(), correlationId);
         testTool.startpoint(correlationId, null, reportName, "XSLT Trace");
         reporter.start();
         testTool.endpoint(correlationId, null, reportName, "XSLT Trace");
@@ -99,7 +99,7 @@ public class XSLTTraceReporter {
                     Element element = (Element) node; // Get the include element from current import node
                     String includePath = element.getAttribute("href"); // Grab the file path from the 'href' attribute
                     Path xslFilePath = Paths.get(includePath);
-                    this.allXSLFiles.add(xslFilePath.toFile()); // Add the included XSL file to global variable for later reference
+                    this.allXSLFiles.add(XMLTransformationContext.createContextFromFile(xslFilePath.toFile())); // Add the included XSL file to global variable for later reference
                     writeFileToInfopoint(xslFilePath); //write the entire XSL file to the report as an infopoint
                 }
                 testTool.endpoint(correlationId, xslFile.getName(), "Included XSL", "Included XSL files");
@@ -112,7 +112,7 @@ public class XSLTTraceReporter {
                     Element element = (Element) node; // Get the import element from current import node
                     String importPath = element.getAttribute("href"); // Grab the file path from the 'href' attribute
                     Path xslFilePath = Paths.get(importPath);
-                    this.allXSLFiles.add(xslFilePath.toFile()); // Add the imported XSL file to global variable for later reference
+                    this.allXSLFiles.add(XMLTransformationContext.createContextFromFile(xslFilePath.toFile())); // Add the imported XSL file to global variable for later reference
                     writeFileToInfopoint(xslFilePath); //write the entire XSL file to the report as an infopoint
                 }
                 testTool.endpoint(correlationId, xslFile.getName(), "Imported XSL", "Imported XSL files");
@@ -208,7 +208,7 @@ public class XSLTTraceReporter {
      * @param trace template match inside trace object to look for in XSL files
      */
     private void printTraceXSL(Trace trace) throws IOException, SAXException, XPathExpressionException {
-        for (File file : allXSLFiles) {
+        for (XMLTransformationContext file : allXSLFiles) {
             boolean hasMatchAttribute = false;
             Document doc = DocumentUtil.buildDocument(file);
             StringWriter result = new StringWriter();

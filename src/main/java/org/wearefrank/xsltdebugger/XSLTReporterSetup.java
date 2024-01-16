@@ -21,18 +21,25 @@ import java.io.StringWriter;
 public class XSLTReporterSetup {
     private StringWriter writer;
     private int xsltVersion;
-    private File xmlFile;
-    private File xslFile;
+    private XMLTransformationContext xmlContext;
+    private XMLTransformationContext xslContext;
     private LadybugTraceListener traceListener;
 
     public XSLTReporterSetup(File xmlFile, File xslFile, int xsltVersion) {
-        this.xmlFile = xmlFile;
-        this.xslFile = xslFile;
+        this.xmlContext = XMLTransformationContext.createContextFromFile(xmlFile);
+        this.xslContext = XMLTransformationContext.createContextFromFile(xslFile);
         this.xsltVersion = xsltVersion;
         this.writer = new StringWriter();
     }
 
-    /*If Saxon-HE 12.3 will ever be used, there will also need to be a check if the xslt version is 4.0*/
+    public XSLTReporterSetup(XMLTransformationContext xmlContext, XMLTransformationContext xslContext, int xsltVersion){
+        this.xmlContext = xmlContext;
+        this.xslContext = xslContext;
+        this.xsltVersion = xsltVersion;
+        this.writer = new StringWriter();
+    }
+
+    /*If Saxon-HE 12.3 ever is used, there will also need to be a check if the xslt version is 4.0*/
     public void transform() {
         if (xsltVersion == 1) {
             writer = new StringWriter();
@@ -60,9 +67,9 @@ public class XSLTReporterSetup {
 
         try {
             org.apache.xalan.processor.TransformerFactoryImpl transformerFactory = new org.apache.xalan.processor.TransformerFactoryImpl();
-            org.apache.xalan.transformer.TransformerImpl transformer = (org.apache.xalan.transformer.TransformerImpl) transformerFactory.newTransformer(new StreamSource(xslFile.getAbsolutePath()));
+            org.apache.xalan.transformer.TransformerImpl transformer = (org.apache.xalan.transformer.TransformerImpl) transformerFactory.newTransformer(new StreamSource(xslContext.getAbsolutePath()));
             transformer.getTraceManager().addTraceListener(traceListener);
-            transformer.transform(new StreamSource(xmlFile.getAbsolutePath()), result);
+            transformer.transform(new StreamSource(xmlContext.getAbsolutePath()), result);
 
             writer.close();
         } catch (Exception e) {
@@ -77,7 +84,7 @@ public class XSLTReporterSetup {
     private void saxonTransform() {
         try {
             net.sf.saxon.TransformerFactoryImpl transformerFactory = new net.sf.saxon.TransformerFactoryImpl();
-            net.sf.saxon.jaxp.TransformerImpl transformer = (net.sf.saxon.jaxp.TransformerImpl) transformerFactory.newTransformer(new StreamSource(xslFile.getAbsolutePath()));
+            net.sf.saxon.jaxp.TransformerImpl transformer = (net.sf.saxon.jaxp.TransformerImpl) transformerFactory.newTransformer(new StreamSource(xslContext.getAbsolutePath()));
 
             SaxonTraceListener traceListener = new SaxonTraceListener();
             this.traceListener = traceListener;
@@ -91,7 +98,7 @@ public class XSLTReporterSetup {
             transformer.getUnderlyingController().getInitialMode().setModeTracing(true);
 
 
-            transformer.transform(new StreamSource(xmlFile.getAbsolutePath()), receiver);
+            transformer.transform(new StreamSource(xmlContext.getAbsolutePath()), receiver);
             writer.close();
         } catch (Exception e) {
             throw new RuntimeException(e);
