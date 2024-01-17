@@ -1,5 +1,6 @@
 package org.wearefrank.xsltdebugger;
 
+import com.sun.istack.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -11,6 +12,8 @@ import java.nio.file.Paths;
 public class XMLTransformationContext {
     private String name;
     private String absolutePath;
+    @Getter
+    @NotNull
     private String context;
 
     public static XMLTransformationContext createContextFromFile(File file) {
@@ -24,7 +27,7 @@ public class XMLTransformationContext {
 
     public String getName(){
         if(name == null){
-            return "N/A";
+            return "XSL input";
         }else{
             return name;
         }
@@ -32,17 +35,9 @@ public class XMLTransformationContext {
 
     public String getAbsolutePath() {
         if(absolutePath == null){
-            return "N/A";
+            return "XSL input";
         }else{
             return absolutePath;
-        }
-    }
-
-    public String getContext(){
-        if(context == null){
-            return "N/A";
-        }else{
-            return context;
         }
     }
 }

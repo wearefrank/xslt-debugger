@@ -22,6 +22,9 @@ public class SaxonWriterReceiver implements Receiver {
     @Setter
     private String systemId;
 
+    private int indent = 0;
+    private static StringBuffer spaceBuffer = new StringBuffer("                ");
+
     private final Stack<String> endElement;
 
     private final StringWriter writer;
@@ -51,6 +54,7 @@ public class SaxonWriterReceiver implements Receiver {
 
     @Override
     public void startElement(NodeName elemName, SchemaType type, AttributeMap attributes, NamespaceMap namespaces, Location location, int properties) {
+        writer.append(spaces(indent));
         writer.append("<");
         writer.append(elemName.getDisplayName());
         for (int i = 0; i < attributes.size(); i++) {
@@ -61,20 +65,26 @@ public class SaxonWriterReceiver implements Receiver {
             writer.append("\"");
         }
 
-        writer.append(">");
+        writer.append(">\n");
+        indent++;
         this.endElement.push("</" + elemName.getDisplayName() + ">");
     }
 
     @Override
     public void endElement() {
         if(!endElement.isEmpty()){
+            indent--;
+            writer.append(spaces(indent));
             writer.append(endElement.pop());
+            writer.append("\n");
         }
     }
 
     @Override
     public void characters(CharSequence chars, Location location, int properties) {
+        writer.append(spaces(indent + 1));
         writer.append(chars);
+        writer.append("/n");
     }
 
     @Override
@@ -88,5 +98,12 @@ public class SaxonWriterReceiver implements Receiver {
 
     @Override
     public void close() {
+    }
+
+    private static String spaces(int n){
+        while(spaceBuffer.length() < n){
+            spaceBuffer.append(SaxonWriterReceiver.spaceBuffer);
+        }
+        return spaceBuffer.substring(0, n);
     }
 }
