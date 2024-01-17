@@ -75,7 +75,12 @@ public class XalanTraceListener implements TraceListenerEx2, LadybugTraceListene
 
                 //showing SystemId once for file location
                 if (et.getSystemId() != null) {
-                    traceContext.append("Now using: ").append(et.getSystemId());
+                    File file = new File(et.getSystemId());
+                    if(file.getName().equals("XSL%20input")){
+                        traceContext.append("Now using: XSL input");
+                    }else {
+                        traceContext.append("Now using: ").append(et.getSystemId());
+                    }
                 } else {
                     traceContext.append("Now using: built-in-rule");
                     isBuiltIn = true;
@@ -85,9 +90,15 @@ public class XalanTraceListener implements TraceListenerEx2, LadybugTraceListene
                 String systemId = ev.m_styleNode.getSystemId();
                 if (systemId != null) {
                     File file = new File(systemId);
-                    traceContext.append("\n").append(file.getName()).append(" Line #").append(et.getLineNumber())
-                            .append(", ").append("Column #").append(et.getColumnNumber()).append(": ")
-                            .append(et.getNodeName()).append(" ");
+                    if(file.getName().equals("XSL%20input")) {
+                        traceContext.append("\n").append("XSL input").append(" Line #").append(et.getLineNumber())
+                                .append(", ").append("Column #").append(et.getColumnNumber()).append(": ")
+                                .append(et.getNodeName()).append(" ");
+                    }else{
+                        traceContext.append("\n").append(file.getName()).append(" Line #").append(et.getLineNumber())
+                                .append(", ").append("Column #").append(et.getColumnNumber()).append(": ")
+                                .append(et.getNodeName()).append(" ");
+                    }
                 } else {
                     traceContext.append("\n").append("built-in-rule ");
                     isBuiltIn = true;
@@ -127,9 +138,15 @@ public class XalanTraceListener implements TraceListenerEx2, LadybugTraceListene
                 String systemId = ev.m_styleNode.getSystemId();
                 if (systemId != null) {
                     File file = new File(systemId);
-                    traceContext.append("\n").append(file.getName()).append(" Line #").append(ev.m_styleNode.getLineNumber()).append(", ")
-                            .append("Column #").append(ev.m_styleNode.getColumnNumber()).append(": ").append("<")
-                            .append(ev.m_styleNode.getNodeName()).append(">");
+                    if(file.getName().equals("XSL%20input")) {
+                        traceContext.append("\n").append("XSL input").append(" Line #").append(ev.m_styleNode.getLineNumber()).append(", ")
+                                .append("Column #").append(ev.m_styleNode.getColumnNumber()).append(": ").append("<")
+                                .append(ev.m_styleNode.getNodeName()).append(">");
+                    }else{
+                        traceContext.append("\n").append(file.getName()).append(" Line #").append(ev.m_styleNode.getLineNumber()).append(", ")
+                                .append("Column #").append(ev.m_styleNode.getColumnNumber()).append(": ").append("<")
+                                .append(ev.m_styleNode.getNodeName()).append(">");
+                    }
                 } else {
                     traceContext.append("\n").append("null");
                 }
@@ -163,8 +180,13 @@ public class XalanTraceListener implements TraceListenerEx2, LadybugTraceListene
             if (locator != null) {
                 //changed to just file name. reading the whole SystemId everytime is hard to read
                 File file = new File(locator.getSystemId());
-                trace.append("\n").append("Selected source node '").append(sourceNode.getNodeName()).append("', at ")
-                        .append(file.getName());
+                if(file.getName().equals("XSL%20input")){
+                    trace.append("\n").append("Selected source node '").append(sourceNode.getNodeName())
+                            .append("', at XSL input").append(". ");
+                }else {
+                    trace.append("\n").append("Selected source node '").append(sourceNode.getNodeName()).append("', at ")
+                            .append(file.getName()).append(". ");
+                }
 
                 selectedTrace.setSelectedNode(sourceNode.getNodeName());
             } else {
@@ -191,9 +213,13 @@ public class XalanTraceListener implements TraceListenerEx2, LadybugTraceListene
             } else {
                 //changed to just file name. reading the whole SystemId everytime is hard to read
                 String systemId = ev.m_styleNode.getSystemId();
-                File file = new File(systemId);
 
-                trace.append(file.getName()).append(" Line #").append(ev.m_styleNode.getLineNumber()).append(", ").append("Column #").append(ev.m_styleNode.getColumnNumber()).append(": ").append(ete.getNodeName()).append(", ").append(ev.m_attributeName).append("='").append(ev.m_xpath.getPatternString()).append("': ");
+                File file = new File(systemId);
+                if(file.getName().equals("XSL%20input")){
+                    trace.append("XSL input").append(" Line #").append(ev.m_styleNode.getLineNumber()).append(", ").append("Column #").append(ev.m_styleNode.getColumnNumber()).append(": ").append(ete.getNodeName()).append(", ").append(ev.m_attributeName).append("='").append(ev.m_xpath.getPatternString()).append("': ");
+                }else {
+                    trace.append(file.getName()).append(" Line #").append(ev.m_styleNode.getLineNumber()).append(", ").append("Column #").append(ev.m_styleNode.getColumnNumber()).append(": ").append(ete.getNodeName()).append(", ").append(ev.m_attributeName).append("='").append(ev.m_xpath.getPatternString()).append("': ");
+                }
             }
 
             if (ev.m_selection.getType() == XObject.CLASS_NODESET) {

@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.io.File;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -38,6 +39,19 @@ public class XMLTransformationContext {
             return "XSL input";
         }else{
             return absolutePath;
+        }
+    }
+
+    public String getSystemId() {
+        if(absolutePath == null){
+            return "XSL input";
+        }else{
+            try {
+                URI uri = new URI("file", null, absolutePath, null);
+                return uri.toString();
+            }catch(Exception e){
+                throw new RuntimeException(e);
+            }
         }
     }
 }

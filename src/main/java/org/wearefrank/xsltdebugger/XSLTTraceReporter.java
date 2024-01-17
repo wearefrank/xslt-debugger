@@ -52,8 +52,8 @@ public class XSLTTraceReporter {
     private void start() {
         testTool.startpoint(correlationId, xmlContext.getName(), "Start XSLT", "Start XSLT");
         try {
-            testTool.infopoint(correlationId, null, "XML input file", xmlContext.getContext());
-            testTool.infopoint(correlationId, xmlContext.getName(), "XSL input file", xslContext.getContext());
+            testTool.infopoint(correlationId, null, "XML input", xmlContext.getContext());
+            testTool.infopoint(correlationId, xmlContext.getName(), "XSL input", xslContext.getContext());
             printImportedXsl();
             printCompleteTraceFromStack(rootTrace);
             printTransformedXml();

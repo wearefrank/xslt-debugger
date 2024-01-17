@@ -53,7 +53,7 @@ public class XSLTReporterSetup {
         }
     }
 
-    /*Since Salan also has a TransformerImpl/TransformerFactoryImpl, the namespace will need to be completely written down as to avoid conflicts between
+    /*Since Xalan also has a TransformerImpl/TransformerFactoryImpl, the namespace will need to be completely written down as to avoid conflicts between
      * the two packages.*/
     private void xalanTransform() {
         XalanTraceListener traceListener = new XalanTraceListener();
@@ -67,10 +67,15 @@ public class XSLTReporterSetup {
         Result result = new StreamResult(writer);
 
         try {
+            StreamSource xmlSource = new StreamSource(new StringReader(xmlContext.getContext()));
+            xmlSource.setSystemId(xmlContext.getSystemId());
+            StreamSource xslSource = new StreamSource(new StringReader(xslContext.getContext()));
+            xslSource.setSystemId(xslContext.getSystemId());
+
             org.apache.xalan.processor.TransformerFactoryImpl transformerFactory = new org.apache.xalan.processor.TransformerFactoryImpl();
-            org.apache.xalan.transformer.TransformerImpl transformer = (org.apache.xalan.transformer.TransformerImpl) transformerFactory.newTransformer(new StreamSource(new StringReader(xslContext.getContext())));
+            org.apache.xalan.transformer.TransformerImpl transformer = (org.apache.xalan.transformer.TransformerImpl) transformerFactory.newTransformer(xslSource);
             transformer.getTraceManager().addTraceListener(traceListener);
-            transformer.transform(new StreamSource(new StringReader(xmlContext.getContext())), result);
+            transformer.transform(xmlSource, result);
 
             writer.close();
         } catch (Exception e) {
