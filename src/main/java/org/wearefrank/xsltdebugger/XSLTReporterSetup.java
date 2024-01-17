@@ -85,7 +85,7 @@ public class XSLTReporterSetup {
     private void saxonTransform() {
         try {
             net.sf.saxon.TransformerFactoryImpl transformerFactory = new net.sf.saxon.TransformerFactoryImpl();
-            net.sf.saxon.jaxp.TransformerImpl transformer = (net.sf.saxon.jaxp.TransformerImpl) transformerFactory.newTransformer(new StreamSource(xslContext.getAbsolutePath()));
+            net.sf.saxon.jaxp.TransformerImpl transformer = (net.sf.saxon.jaxp.TransformerImpl) transformerFactory.newTransformer(new StreamSource(new StringReader(xslContext.getContext())));
 
             SaxonTraceListener traceListener = new SaxonTraceListener();
             this.traceListener = traceListener;
@@ -99,7 +99,7 @@ public class XSLTReporterSetup {
             transformer.getUnderlyingController().getInitialMode().setModeTracing(true);
 
 
-            transformer.transform(new StreamSource(xmlContext.getAbsolutePath()), receiver);
+            transformer.transform(new StreamSource(new StringReader(xmlContext.getContext())), receiver);
             writer.close();
         } catch (Exception e) {
             throw new RuntimeException(e);

@@ -17,7 +17,6 @@ import org.xml.sax.SAXException;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -44,11 +43,6 @@ public class XSLTTraceReporter {
     }
 
     public static void initiate(TestTool testTool, XSLTReporterSetup reporterSetup, String correlationId, String reportName) {
-        System.out.println(reporterSetup.getTraceListener());
-        System.out.println(reporterSetup.getXmlContext());
-        System.out.println(reporterSetup.getXslContext());
-        System.out.println(reporterSetup.getTraceListener().getRootTrace());
-        System.out.println(reporterSetup.getWriter());
         XSLTTraceReporter reporter = new XSLTTraceReporter(testTool, reporterSetup.getXmlContext(), reporterSetup.getXslContext(), reporterSetup.getTraceListener().getRootTrace(), reporterSetup.getWriter().toString(), correlationId);
         testTool.startpoint(correlationId, null, reportName, "XSLT Trace");
         reporter.start();
