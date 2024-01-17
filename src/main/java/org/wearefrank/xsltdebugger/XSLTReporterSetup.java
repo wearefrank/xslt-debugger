@@ -14,6 +14,7 @@ import javax.xml.transform.Result;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.File;
+import java.io.StringReader;
 import java.io.StringWriter;
 
 @Getter
@@ -67,9 +68,9 @@ public class XSLTReporterSetup {
 
         try {
             org.apache.xalan.processor.TransformerFactoryImpl transformerFactory = new org.apache.xalan.processor.TransformerFactoryImpl();
-            org.apache.xalan.transformer.TransformerImpl transformer = (org.apache.xalan.transformer.TransformerImpl) transformerFactory.newTransformer(new StreamSource(xslContext.getAbsolutePath()));
+            org.apache.xalan.transformer.TransformerImpl transformer = (org.apache.xalan.transformer.TransformerImpl) transformerFactory.newTransformer(new StreamSource(new StringReader(xslContext.getContext())));
             transformer.getTraceManager().addTraceListener(traceListener);
-            transformer.transform(new StreamSource(xmlContext.getAbsolutePath()), result);
+            transformer.transform(new StreamSource(new StringReader(xmlContext.getContext())), result);
 
             writer.close();
         } catch (Exception e) {
