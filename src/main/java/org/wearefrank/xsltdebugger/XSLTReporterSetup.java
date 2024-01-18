@@ -14,6 +14,7 @@ import javax.xml.transform.Result;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.File;
+import java.io.StringReader;
 import java.io.StringWriter;
 
 @Getter
@@ -21,18 +22,25 @@ import java.io.StringWriter;
 public class XSLTReporterSetup {
     private StringWriter writer;
     private int xsltVersion;
-    private File xmlFile;
-    private File xslFile;
+    private XMLTransformationContext xmlContext;
+    private XMLTransformationContext xslContext;
     private LadybugTraceListener traceListener;
 
     public XSLTReporterSetup(File xmlFile, File xslFile, int xsltVersion) {
-        this.xmlFile = xmlFile;
-        this.xslFile = xslFile;
+        this.xmlContext = XMLTransformationContext.createContextFromFile(xmlFile);
+        this.xslContext = XMLTransformationContext.createContextFromFile(xslFile);
         this.xsltVersion = xsltVersion;
         this.writer = new StringWriter();
     }
 
-    /*If Saxon-HE 12.3 will ever be used, there will also need to be a check if the xslt version is 4.0*/
+    public XSLTReporterSetup(String xmlContext, String xslContext, int xsltVersion){
+        this.xmlContext = new XMLTransformationContext(xmlContext);
+        this.xslContext = new XMLTransformationContext(xslContext);
+        this.xsltVersion = xsltVersion;
+        this.writer = new StringWriter();
+    }
+
+    /*If Saxon-HE 12.3 ever is used, there will also need to be a check if the xslt version is 4.0*/
     public void transform() {
         if (xsltVersion == 1) {
             writer = new StringWriter();
@@ -45,7 +53,7 @@ public class XSLTReporterSetup {
         }
     }
 
-    /*Since Salan also has a TransformerImpl/TransformerFactoryImpl, the namespace will need to be completely written down as to avoid conflicts between
+    /*Since Xalan also has a TransformerImpl/TransformerFactoryImpl, the namespace will need to be completely written down as to avoid conflicts between
      * the two packages.*/
     private void xalanTransform() {
         XalanTraceListener traceListener = new XalanTraceListener();
@@ -59,10 +67,13 @@ public class XSLTReporterSetup {
         Result result = new StreamResult(writer);
 
         try {
+            StreamSource xmlSource = xmlContext.getSourceObject();
+            StreamSource xslSource = xslContext.getSourceObject();
+
             org.apache.xalan.processor.TransformerFactoryImpl transformerFactory = new org.apache.xalan.processor.TransformerFactoryImpl();
-            org.apache.xalan.transformer.TransformerImpl transformer = (org.apache.xalan.transformer.TransformerImpl) transformerFactory.newTransformer(new StreamSource(xslFile.getAbsolutePath()));
+            org.apache.xalan.transformer.TransformerImpl transformer = (org.apache.xalan.transformer.TransformerImpl) transformerFactory.newTransformer(xslSource);
             transformer.getTraceManager().addTraceListener(traceListener);
-            transformer.transform(new StreamSource(xmlFile.getAbsolutePath()), result);
+            transformer.transform(xmlSource, result);
 
             writer.close();
         } catch (Exception e) {
@@ -77,7 +88,7 @@ public class XSLTReporterSetup {
     private void saxonTransform() {
         try {
             net.sf.saxon.TransformerFactoryImpl transformerFactory = new net.sf.saxon.TransformerFactoryImpl();
-            net.sf.saxon.jaxp.TransformerImpl transformer = (net.sf.saxon.jaxp.TransformerImpl) transformerFactory.newTransformer(new StreamSource(xslFile.getAbsolutePath()));
+            net.sf.saxon.jaxp.TransformerImpl transformer = (net.sf.saxon.jaxp.TransformerImpl) transformerFactory.newTransformer(new StreamSource(new StringReader(xslContext.getContext())));
 
             SaxonTraceListener traceListener = new SaxonTraceListener();
             this.traceListener = traceListener;
@@ -91,7 +102,7 @@ public class XSLTReporterSetup {
             transformer.getUnderlyingController().getInitialMode().setModeTracing(true);
 
 
-            transformer.transform(new StreamSource(xmlFile.getAbsolutePath()), receiver);
+            transformer.transform(xmlContext.getSourceObject(), receiver);
             writer.close();
         } catch (Exception e) {
             throw new RuntimeException(e);

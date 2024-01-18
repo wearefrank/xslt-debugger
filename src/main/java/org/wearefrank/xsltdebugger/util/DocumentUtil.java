@@ -1,6 +1,8 @@
 package org.wearefrank.xsltdebugger.util;
 
 import org.w3c.dom.Document;
+import org.wearefrank.xsltdebugger.XMLTransformationContext;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -8,6 +10,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -32,10 +35,10 @@ public class DocumentUtil {
     /**
      * Creates a Document object based on the given file
      *
-     * @param file File object to make a Document object out of
+     * @param transformationContext File object to make a Document object out of
      */
-    public static Document buildDocument(File file) throws IOException, SAXException {
-        Document newDocument = getDocumentBuilder().parse(file);
+    public static Document buildDocument(XMLTransformationContext transformationContext) throws IOException, SAXException {
+        Document newDocument = getDocumentBuilder().parse(new InputSource(new StringReader(transformationContext.getContext())));
         newDocument.getDocumentElement().normalize();
         return newDocument;
     }
