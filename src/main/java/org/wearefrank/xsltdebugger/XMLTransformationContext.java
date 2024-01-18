@@ -26,7 +26,7 @@ public class XMLTransformationContext {
     public static XMLTransformationContext createContextFromFile(File file) {
         try {
             String context = new String(Files.readAllBytes(Paths.get(file.getAbsolutePath())));
-            return new XMLTransformationContext(file.getAbsolutePath(), file.getName(), context);
+            return new XMLTransformationContext(file.getName(), file.getAbsolutePath(), context);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -60,7 +60,7 @@ public class XMLTransformationContext {
             return "XSL input";
         }else{
             try {
-                URI uri = new URI("file", null, absolutePath, null);
+                URI uri = new File(absolutePath).toURI();
                 return uri.toString();
             }catch(Exception e){
                 throw new RuntimeException(e);
