@@ -23,9 +23,9 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>net.sf.saxon</groupId>
+      <groupId>org.wearefrank</groupId>
       <artifactId>Saxon-HE</artifactId>
-      <version>10.8-SNAPSHOT</version>
+      <version>10.8.1</version>
     </dependency>
     <dependency>
       <groupId>xalan</groupId>
