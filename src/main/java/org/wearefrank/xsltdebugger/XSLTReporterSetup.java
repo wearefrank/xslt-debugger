@@ -33,9 +33,9 @@ public class XSLTReporterSetup {
         this.writer = new StringWriter();
     }
 
-    public XSLTReporterSetup(XMLTransformationContext xmlContext, XMLTransformationContext xslContext, int xsltVersion){
-        this.xmlContext = xmlContext;
-        this.xslContext = xslContext;
+    public XSLTReporterSetup(String xmlContext, String xslContext, int xsltVersion){
+        this.xmlContext = new XMLTransformationContext(xmlContext);
+        this.xslContext = new XMLTransformationContext(xslContext);
         this.xsltVersion = xsltVersion;
         this.writer = new StringWriter();
     }
@@ -67,10 +67,8 @@ public class XSLTReporterSetup {
         Result result = new StreamResult(writer);
 
         try {
-            StreamSource xmlSource = new StreamSource(new StringReader(xmlContext.getContext()));
-            xmlSource.setSystemId(xmlContext.getSystemId());
-            StreamSource xslSource = new StreamSource(new StringReader(xslContext.getContext()));
-            xslSource.setSystemId(xslContext.getSystemId());
+            StreamSource xmlSource = xmlContext.getSourceObject();
+            StreamSource xslSource = xslContext.getSourceObject();
 
             org.apache.xalan.processor.TransformerFactoryImpl transformerFactory = new org.apache.xalan.processor.TransformerFactoryImpl();
             org.apache.xalan.transformer.TransformerImpl transformer = (org.apache.xalan.transformer.TransformerImpl) transformerFactory.newTransformer(xslSource);
@@ -104,7 +102,7 @@ public class XSLTReporterSetup {
             transformer.getUnderlyingController().getInitialMode().setModeTracing(true);
 
 
-            transformer.transform(new StreamSource(new StringReader(xmlContext.getContext())), receiver);
+            transformer.transform(xmlContext.getSourceObject(), receiver);
             writer.close();
         } catch (Exception e) {
             throw new RuntimeException(e);
