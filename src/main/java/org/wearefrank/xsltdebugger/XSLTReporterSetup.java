@@ -14,6 +14,7 @@ import javax.xml.transform.Result;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.File;
+import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 
@@ -41,7 +42,7 @@ public class XSLTReporterSetup {
     }
 
     /*If Saxon-HE 12.3 ever is used, there will also need to be a check if the xslt version is 4.0*/
-    public void transform() {
+    public void transform() throws IOException {
         if (xsltVersion == 1) {
             writer = new StringWriter();
             xalanTransform();
@@ -55,7 +56,7 @@ public class XSLTReporterSetup {
 
     /*Since Xalan also has a TransformerImpl/TransformerFactoryImpl, the namespace will need to be completely written down as to avoid conflicts between
      * the two packages.*/
-    private void xalanTransform() {
+    private void xalanTransform() throws IOException {
         XalanTraceListener traceListener = new XalanTraceListener();
         this.traceListener = traceListener;
 
@@ -74,10 +75,10 @@ public class XSLTReporterSetup {
             org.apache.xalan.transformer.TransformerImpl transformer = (org.apache.xalan.transformer.TransformerImpl) transformerFactory.newTransformer(xslSource);
             transformer.getTraceManager().addTraceListener(traceListener);
             transformer.transform(xmlSource, result);
-
-            writer.close();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            writer.append(e.toString());
+        }finally {
+            writer.close();
         }
     }
 
@@ -85,7 +86,7 @@ public class XSLTReporterSetup {
     * by using the TransformerFactoryImpl and making a TransformImpl using that factory object.
     * Since Xalan also has a TransformerImpl/TransformerFactoryImpl, the namespace will need to be completely written down as to avoid conflicts between
     * the two packages.*/
-    private void saxonTransform() {
+    private void saxonTransform() throws IOException {
         try {
             net.sf.saxon.TransformerFactoryImpl transformerFactory = new net.sf.saxon.TransformerFactoryImpl();
             net.sf.saxon.jaxp.TransformerImpl transformer = (net.sf.saxon.jaxp.TransformerImpl) transformerFactory.newTransformer(new StreamSource(new StringReader(xslContext.getContext())));
@@ -103,9 +104,10 @@ public class XSLTReporterSetup {
 
 
             transformer.transform(xmlContext.getSourceObject(), receiver);
-            writer.close();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            writer.append(e.toString());
+        }finally {
+            writer.close();
         }
     }
 }

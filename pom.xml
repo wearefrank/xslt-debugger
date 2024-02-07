@@ -69,6 +69,60 @@
         </repository>
       </repositories>
     </profile>
+    <profile>
+      <id>ibissource</id>
+      <distributionManagement>
+        <repository>
+          <id>ibissource</id>
+          <url>https://nexus.frankframework.org/content/repositories/releases</url>
+        </repository>
+        <snapshotRepository>
+          <id>ibissource</id>
+          <url>https://nexus.frankframework.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <site>
+          <id>www.ibissource.org</id>
+          <url>file:target/site-deploy</url>
+        </site>
+      </distributionManagement>
+      <repositories>
+        <repository>
+          <id>ibissource</id>
+          <url>https://nexus.frankframework.org/content/groups/public</url>
+        </repository>
+      </repositories>
+    </profile>
+    <profile>
+      <id>release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>1.6</version>
+            <configuration>
+              <passphrase>${gpg.passphrase}</passphrase>
+              <gpgArguments>
+                <!-- This is necessary for gpg to not try to use the pinentry programs -->
+                <arg>--batch</arg>
+                <arg>--no-tty</arg>
+                <arg>--pinentry-mode</arg>
+                <arg>loopback</arg>
+              </gpgArguments>
+            </configuration>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
 
   <build>
