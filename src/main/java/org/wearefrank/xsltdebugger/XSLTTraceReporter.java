@@ -240,7 +240,9 @@ public class XSLTTraceReporter {
             Document doc = DocumentUtil.buildDocument(xmlContext);
             if (trace.getTraceMatch().startsWith("/")) {
                 nodeList = XPathUtil.getNodesByXPath(trace.getTraceMatch(), doc);
-            } else {
+            } else if (trace.getTraceMatch().startsWith("*")) {
+                nodeList = XPathUtil.getNodesByXPath("/" + trace.getTraceMatch(), doc);
+            }else{
                 nodeList = XPathUtil.getNodesByXPath("//" + trace.getTraceMatch(), doc);
             }
             StringWriter result = new StringWriter();
@@ -281,17 +283,21 @@ public class XSLTTraceReporter {
                     result.append(" ").append(attribute.getNodeName()).append("=\"").append(attribute.getNodeValue()).append("\"");
                 }
             }
-            result.append(">");
-            NodeList children = node.getChildNodes();
-            for (int i = 0; i < children.getLength(); i++) {
-                getNodeIndentation(result, children.item(i), indent + 1, needsIndent);
-            }
-            if (needsIndent) {
-                for (int i = 0; i < indent; i++) {
-                    result.append("\t");
+            if(node.getChildNodes().getLength() == 0){
+                result.append("/>");
+            }else {
+                result.append(">");
+                NodeList children = node.getChildNodes();
+                for (int i = 0; i < children.getLength(); i++) {
+                    getNodeIndentation(result, children.item(i), indent + 1, needsIndent);
                 }
+                if (needsIndent) {
+                    for (int i = 0; i < indent; i++) {
+                        result.append("\t");
+                    }
+                }
+                result.append("</").append(node.getNodeName()).append(">");
             }
-            result.append("</").append(node.getNodeName()).append(">");
         }
     }
 }

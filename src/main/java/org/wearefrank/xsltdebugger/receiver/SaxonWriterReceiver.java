@@ -10,6 +10,7 @@ import net.sf.saxon.om.NamespaceMap;
 import net.sf.saxon.om.NodeName;
 import net.sf.saxon.s9api.Location;
 import net.sf.saxon.type.SchemaType;
+import org.wearefrank.xsltdebugger.XMLTransformationContext;
 
 import java.io.StringWriter;
 import java.util.Stack;
@@ -21,17 +22,19 @@ public class SaxonWriterReceiver implements Receiver {
     @Getter
     @Setter
     private String systemId;
+    private final XMLTransformationContext xmlContext;
 
     private int indent = 0;
-    private static StringBuffer spaceBuffer = new StringBuffer("                ");
+    private static StringBuffer spaceBuffer = new StringBuffer("    ");
 
     private final Stack<String> endElement;
 
     private final StringWriter writer;
 
-    public SaxonWriterReceiver(StringWriter writer){
+    public SaxonWriterReceiver(StringWriter writer, XMLTransformationContext xmlContext){
         this.writer = writer;
         this.endElement = new Stack<>();
+        this.xmlContext = xmlContext;
     }
 
     @Override
@@ -48,7 +51,6 @@ public class SaxonWriterReceiver implements Receiver {
 
     @Override
     public void setUnparsedEntity(String name, String systemID, String publicID) {
-        System.out.println(name);
         writer.append(name);
     }
 
@@ -65,18 +67,16 @@ public class SaxonWriterReceiver implements Receiver {
             writer.append("\"");
         }
 
-        writer.append(">\n");
+        writer.write(">");
+        this.endElement.push("\n" + spaces(indent) + "</" + elemName.getDisplayName() + ">");
         indent++;
-        this.endElement.push("</" + elemName.getDisplayName() + ">");
     }
 
     @Override
     public void endElement() {
         if(!endElement.isEmpty()){
-            indent--;
-            writer.append(spaces(indent));
             writer.append(endElement.pop());
-            writer.append("\n");
+            indent--;
         }
     }
 
@@ -84,7 +84,6 @@ public class SaxonWriterReceiver implements Receiver {
     public void characters(CharSequence chars, Location location, int properties) {
         writer.append(spaces(indent + 1));
         writer.append(chars);
-        writer.append("/n");
     }
 
     @Override
@@ -101,9 +100,15 @@ public class SaxonWriterReceiver implements Receiver {
     }
 
     private static String spaces(int n){
-        while(spaceBuffer.length() < n){
-            spaceBuffer.append(SaxonWriterReceiver.spaceBuffer);
+        StringBuilder spacing = new StringBuilder();
+        for (int count = 0; count < n; count++) {
+            spacing.append(SaxonWriterReceiver.spaceBuffer);
         }
-        return spaceBuffer.substring(0, n);
+        return spacing.toString();
+    }
+
+    private boolean isSelfClosing(NodeName nodeName, Location location){
+        String[] xmlString = xmlContext.getContext().split("\n");
+        return xmlString[location.getLineNumber() - 1].contains("<" + nodeName.getDisplayName() + "/>");
     }
 }
