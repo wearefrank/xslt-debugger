@@ -71,16 +71,13 @@ public class Trace {
      */
     public String getWholeTrace(boolean showSeparator) {
         StringBuilder result = new StringBuilder();
-
         if (showSeparator) {
             result.append("--------------------------------------------New trace instruction being applied--------------------------------------------\n");
         }
         result.append(headTraceContext);
-
         for (String childrenTrace : traceContext) {
             result.append(childrenTrace);
         }
-
         return result.toString();
     }
 }
