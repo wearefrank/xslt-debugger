@@ -29,8 +29,6 @@ jobs:
           cache: maven
       - name: Run the Maven verify phase
         run: mvn --batch-mode --update-snapshots verify
-      - name: Run the Maven test phase
-        run: mvn --batch-mode --update-snapshots test
 
       # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
       - name: Update dependency graph
