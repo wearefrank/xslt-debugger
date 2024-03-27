@@ -3,9 +3,6 @@ package org.wearefrank.xsltdebugger;
 import lombok.Getter;
 import lombok.Setter;
 
-import org.wearefrank.xsltdebugger.receiver.SaxonElementReceiver;
-import org.wearefrank.xsltdebugger.receiver.SaxonOutputSplitter;
-import org.wearefrank.xsltdebugger.receiver.SaxonWriterReceiver;
 import org.wearefrank.xsltdebugger.trace.LadybugTraceListener;
 import org.wearefrank.xsltdebugger.trace.SaxonTraceListener;
 import org.wearefrank.xsltdebugger.trace.XalanTraceListener;
@@ -91,9 +88,6 @@ public class XSLTReporterSetup {
             SaxonTraceListener traceListener = new SaxonTraceListener();
             this.traceListener = traceListener;
             transformer.getUnderlyingController().setTraceListener(traceListener);
-            SaxonElementReceiver elementReceiver = new SaxonElementReceiver(traceListener);
-            SaxonWriterReceiver writerReceiver = new SaxonWriterReceiver(writer, xmlContext);
-            SaxonOutputSplitter receiver = new SaxonOutputSplitter(transformer.getUnderlyingController().makeBuilder(), writerReceiver, elementReceiver);
             transformer.getUnderlyingController().getInitialMode().setModeTracing(true);
             StreamResult result = new StreamResult(writer);
             transformer.transform(xmlContext.getSourceObject(), result);

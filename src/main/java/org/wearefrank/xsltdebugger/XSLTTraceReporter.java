@@ -1,19 +1,17 @@
 package org.wearefrank.xsltdebugger;
 
+import nl.nn.testtool.TestTool;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.wearefrank.xsltdebugger.trace.NodeType;
+import org.wearefrank.xsltdebugger.trace.Trace;
 import org.wearefrank.xsltdebugger.util.DocumentUtil;
 import org.wearefrank.xsltdebugger.util.XPathUtil;
-import org.wearefrank.xsltdebugger.trace.Trace;
-
-import nl.nn.testtool.TestTool;
-
+import org.wearefrank.xsltdebugger.util.XmlUtil;
 import org.xml.sax.SAXException;
 
+import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -79,30 +77,28 @@ public class XSLTTraceReporter {
                 List<Node> nodeList = XPathUtil.getNodesByXPath("//*[local-name()='include']", xslDocument);
                 testTool.startpoint(correlationId, xslContext.getName(), "Included XSL", "Included XSL files");
                 // Loop over all the 'included' nodes (each node references 1 XSL file in its 'href' attribute)
-                for (Node node : nodeList) {
-                    Element element = (Element) node; // Get the include element from current import node
-                    String includePath = element.getAttribute("href"); // Grab the file path from the 'href' attribute
-                    Path xslFilePath = Paths.get(includePath);
-                    this.allXSLContext.add(XMLTransformationContext.createContextFromFile(xslFilePath.toFile())); // Add the included XSL file to global variable for later reference
-                    writeFileToInfopoint(xslFilePath); //write the entire XSL file to the report as an infopoint
-                }
+                loopThroughImportedXsl(nodeList);
                 testTool.endpoint(correlationId, xslContext.getName(), "Included XSL", "Included XSL files");
             }
             if (XPathUtil.fileHasNode("import", xslDocument)) {
                 List<Node> nodeList = XPathUtil.getNodesByXPath("//*[local-name()='import']", xslDocument);
                 testTool.startpoint(correlationId, xslContext.getName(), "Imported XSL", "Imported XSL files");
                 // Loop over all the 'import' nodes (each node references 1 XSL file in its 'href' attribute)
-                for (Node node : nodeList) {
-                    Element element = (Element) node; // Get the import element from current import node
-                    String importPath = element.getAttribute("href"); // Grab the file path from the 'href' attribute
-                    Path xslFilePath = Paths.get(importPath);
-                    this.allXSLContext.add(XMLTransformationContext.createContextFromFile(xslFilePath.toFile())); // Add the imported XSL file to global variable for later reference
-                    writeFileToInfopoint(xslFilePath); //write the entire XSL file to the report as an infopoint
-                }
+                loopThroughImportedXsl(nodeList);
                 testTool.endpoint(correlationId, xslContext.getName(), "Imported XSL", "Imported XSL files");
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void loopThroughImportedXsl(List<Node> nodeList) throws IOException {
+        for (Node node : nodeList) {
+            Element element = (Element) node; // Get the import element from current import node
+            String importPath = element.getAttribute("href"); // Grab the file path from the 'href' attribute
+            Path xslFilePath = Paths.get(importPath);
+            this.allXSLContext.add(XMLTransformationContext.createContextFromFile(xslFilePath.toFile())); // Add the imported XSL file to global variable for later reference
+            writeFileToInfopoint(xslFilePath); //write the entire XSL file to the report as an infopoint
         }
     }
 
@@ -172,7 +168,6 @@ public class XSLTTraceReporter {
                     loopThroughAllTemplates(childTrace);
                     testTool.endpoint(correlationId, childTrace.getTraceId(), "for-each select=" + childTrace.getTraceMatch(), childTrace.getWholeTrace(false));
                 }
-
                 //todo: save this code until solution for optional built-in-rules has been made
 //                else {
 //                    testTool.startpoint(correlationId, templateTrace.getTraceId(), "built-in-rule match=" + templateTrace.getTemplateMatch() + " node=" + templateTrace.getSelectedNode(), templateTrace.getWholeTrace(false));
@@ -191,113 +186,54 @@ public class XSLTTraceReporter {
      *
      * @param trace template match inside trace object to look for in XSL files
      */
-    private void printTraceXSL(Trace trace) throws IOException, SAXException, XPathExpressionException {
-        for (XMLTransformationContext file : allXSLContext) {
-            boolean hasMatchAttribute = false;
-            Document doc = DocumentUtil.buildDocument(file);
-            StringWriter result = new StringWriter();
+    private void printTraceXSL(Trace trace) throws IOException, SAXException, XPathExpressionException, TransformerException {
+        for (XMLTransformationContext context : allXSLContext) {
+            Document doc = DocumentUtil.buildDocument(context);
+            StringBuilder stringBuilder = new StringBuilder();
             if (trace.getNodeType() == NodeType.MATCH_TEMPLATE || trace.getNodeType() == NodeType.BUILT_IN_TEMPLATE) {
                 List<Node> nodeList = XPathUtil.getNodesByXPath("//*[local-name()='template']", doc);
                 for (Node node : nodeList) {
                     Element element = (Element) node;
                     if (element.getAttribute("match").equals(trace.getTraceMatch())) {
-                        hasMatchAttribute = true;
-                        StringBuilder stringBuilder = new StringBuilder();
-                        getNodeIndentation(stringBuilder, node, 0, true);
-                        result.append(stringBuilder).append("\n");
+                        stringBuilder.append(XmlUtil.getXmlFormatFromNode(node));
                     }
                 }
-                if (!hasMatchAttribute) continue;
             } else if (trace.getNodeType() == NodeType.FOREACH) {
                 List<Node> nodeList = XPathUtil.getNodesByXPath("//*[local-name()='for-each']", doc);
-
                 for (Node node : nodeList) {
                     Element element = (Element) node;
-
                     if (element.getAttribute("select").equals(trace.getTraceMatch())) {
-                        hasMatchAttribute = true;
-                        StringBuilder stringBuilder = new StringBuilder();
-                        getNodeIndentation(stringBuilder, node, 0, true);
-                        result.append(stringBuilder).append("\n");
+                        stringBuilder.append(XmlUtil.getXmlFormatFromNode(node));
                     }
                 }
-                if (!hasMatchAttribute) continue;
             }
-
-            testTool.infopoint(correlationId, null,
-                    "Line #" + trace.getLineNumber() + " Column #" + trace.getColumnNumber() + ": " + file.getName(),
-                    result.toString());
+            if (!stringBuilder.isEmpty()) {
+                String result = stringBuilder.toString();
+                result = result.replace("xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" ", "");
+                testTool.infopoint(correlationId, null,
+                        "Line #" + trace.getLineNumber() + " Column #" + trace.getColumnNumber() + ": " + context.getName(),
+                        result);
+            }
         }
     }
 
     /**
      * Shows the affected XML of the XSLT trace
      */
-    private String printTemplateXml(Trace trace) {
-        try {
-            List<Node> nodeList;
-
-            Document doc = DocumentUtil.buildDocument(xmlContext);
-            if (trace.getTraceMatch().startsWith("/")) {
-                nodeList = XPathUtil.getNodesByXPath(trace.getTraceMatch(), doc);
-            } else if (trace.getTraceMatch().startsWith("*")) {
-                nodeList = XPathUtil.getNodesByXPath("/" + trace.getTraceMatch(), doc);
-            }else{
-                nodeList = XPathUtil.getNodesByXPath("//" + trace.getTraceMatch(), doc);
-            }
-            StringWriter result = new StringWriter();
-
-            for (Node node : nodeList) {
-                StringBuilder stringBuilder = new StringBuilder();
-                getNodeIndentation(stringBuilder, node, 0, false);
-                result.append(stringBuilder).append("\n");
-            }
-            return result.toString();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * Converts the node into string
-     *
-     * @param indent      amount of indents it needs
-     * @param node        Node to convert
-     * @param needsIndent True/False if indents should be used
-     * @param result      attached stringbuilder to write to
-     */
-    private void getNodeIndentation(StringBuilder result, Node node, int indent, boolean needsIndent) {
-        if (needsIndent) {
-            for (int i = 0; i < indent; i++) {
-                result.append("\t");
-            }
-        }
-        if (node.getNodeType() == Node.TEXT_NODE) {
-            result.append(node.getNodeValue());
+    private String printTemplateXml(Trace trace) throws TransformerException, IOException, SAXException, XPathExpressionException {
+        StringWriter writer = new StringWriter();
+        Document doc = DocumentUtil.buildDocument(xmlContext);
+        List<Node> nodeList;
+        if (trace.getTraceMatch().startsWith("/")) {
+            nodeList = XPathUtil.getNodesByXPath(trace.getTraceMatch(), doc);
+        } else if (trace.getTraceMatch().startsWith("*")) {
+            nodeList = XPathUtil.getNodesByXPath("/" + trace.getTraceMatch(), doc);
         } else {
-            result.append("<").append(node.getNodeName());
-            if (node.hasAttributes()) {
-                NamedNodeMap attributes = node.getAttributes();
-                for (int j = 0; j < attributes.getLength(); j++) {
-                    Node attribute = attributes.item(j);
-                    result.append(" ").append(attribute.getNodeName()).append("=\"").append(attribute.getNodeValue()).append("\"");
-                }
-            }
-            if(node.getChildNodes().getLength() == 0){
-                result.append("/>");
-            }else {
-                result.append(">");
-                NodeList children = node.getChildNodes();
-                for (int i = 0; i < children.getLength(); i++) {
-                    getNodeIndentation(result, children.item(i), indent + 1, needsIndent);
-                }
-                if (needsIndent) {
-                    for (int i = 0; i < indent; i++) {
-                        result.append("\t");
-                    }
-                }
-                result.append("</").append(node.getNodeName()).append(">");
-            }
+            nodeList = XPathUtil.getNodesByXPath("//" + trace.getTraceMatch(), doc);
         }
+        for (Node node : nodeList) {
+            writer.append(XmlUtil.getXmlFormatFromNode(node));
+        }
+        return writer.toString();
     }
 }
