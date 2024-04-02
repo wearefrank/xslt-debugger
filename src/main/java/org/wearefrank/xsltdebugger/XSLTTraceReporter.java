@@ -207,7 +207,7 @@ public class XSLTTraceReporter {
                     }
                 }
             }
-            if (!stringBuilder.isEmpty()) {
+            if (stringBuilder.length() != 0) {
                 String result = stringBuilder.toString();
                 result = result.replace("xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" ", "");
                 testTool.infopoint(correlationId, null,
