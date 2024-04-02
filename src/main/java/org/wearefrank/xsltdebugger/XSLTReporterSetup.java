@@ -3,9 +3,6 @@ package org.wearefrank.xsltdebugger;
 import lombok.Getter;
 import lombok.Setter;
 
-import org.wearefrank.xsltdebugger.receiver.SaxonElementReceiver;
-import org.wearefrank.xsltdebugger.receiver.SaxonOutputSplitter;
-import org.wearefrank.xsltdebugger.receiver.SaxonWriterReceiver;
 import org.wearefrank.xsltdebugger.trace.LadybugTraceListener;
 import org.wearefrank.xsltdebugger.trace.SaxonTraceListener;
 import org.wearefrank.xsltdebugger.trace.XalanTraceListener;
@@ -34,7 +31,7 @@ public class XSLTReporterSetup {
         this.writer = new StringWriter();
     }
 
-    public XSLTReporterSetup(String xmlContext, String xslContext, int xsltVersion){
+    public XSLTReporterSetup(String xmlContext, String xslContext, int xsltVersion) {
         this.xmlContext = new XMLTransformationContext(xmlContext);
         this.xslContext = new XMLTransformationContext(xslContext);
         this.xsltVersion = xsltVersion;
@@ -59,14 +56,11 @@ public class XSLTReporterSetup {
     private void xalanTransform() throws IOException {
         XalanTraceListener traceListener = new XalanTraceListener();
         this.traceListener = traceListener;
-
         traceListener.m_traceElements = true;
         traceListener.m_traceTemplates = true;
         traceListener.m_traceGeneration = true;
         traceListener.m_traceSelection = true;
-
         Result result = new StreamResult(writer);
-
         try {
             StreamSource xmlSource = xmlContext.getSourceObject();
             StreamSource xslSource = xslContext.getSourceObject();
@@ -77,36 +71,30 @@ public class XSLTReporterSetup {
             transformer.transform(xmlSource, result);
         } catch (Exception e) {
             writer.append(e.toString());
-        }finally {
+        } finally {
             writer.close();
         }
     }
 
     /*Saxon has multiple ways to get a transformer for XSLT. The only way to connect the SaxonOutputSplitter and the TraceListener at the same time is
-    * by using the TransformerFactoryImpl and making a TransformImpl using that factory object.
-    * Since Xalan also has a TransformerImpl/TransformerFactoryImpl, the namespace will need to be completely written down as to avoid conflicts between
-    * the two packages.*/
+     * by using the TransformerFactoryImpl and making a TransformImpl using that factory object.
+     * Since Xalan also has a TransformerImpl/TransformerFactoryImpl, the namespace will need to be completely written down as to avoid conflicts between
+     * the two packages.
+     * */
     private void saxonTransform() throws IOException {
         try {
             net.sf.saxon.TransformerFactoryImpl transformerFactory = new net.sf.saxon.TransformerFactoryImpl();
             net.sf.saxon.jaxp.TransformerImpl transformer = (net.sf.saxon.jaxp.TransformerImpl) transformerFactory.newTransformer(new StreamSource(new StringReader(xslContext.getContext())));
-
             SaxonTraceListener traceListener = new SaxonTraceListener();
             this.traceListener = traceListener;
-
             transformer.getUnderlyingController().setTraceListener(traceListener);
-
-            SaxonElementReceiver elementReceiver = new SaxonElementReceiver(traceListener);
-            SaxonWriterReceiver writerReceiver = new SaxonWriterReceiver(writer);
-            SaxonOutputSplitter receiver = new SaxonOutputSplitter(transformer.getUnderlyingController().makeBuilder(), writerReceiver, elementReceiver);
-
             transformer.getUnderlyingController().getInitialMode().setModeTracing(true);
+            StreamResult result = new StreamResult(writer);
+            transformer.transform(xmlContext.getSourceObject(), result);
 
-
-            transformer.transform(xmlContext.getSourceObject(), receiver);
         } catch (Exception e) {
             writer.append(e.toString());
-        }finally {
+        } finally {
             writer.close();
         }
     }

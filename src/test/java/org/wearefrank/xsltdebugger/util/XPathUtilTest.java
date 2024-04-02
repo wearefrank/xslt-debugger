@@ -3,7 +3,6 @@ package org.wearefrank.xsltdebugger.util;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -22,10 +21,8 @@ class XPathUtilTest {
     void isFileHasNode() {
         try {
             String xmlString = "<root><element>Content</element></root>";
-
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
-
             Document document = builder.parse(new InputSource(new StringReader(xmlString)));
             assertTrue(fileHasNode("element", document));
         }catch(Exception e){
@@ -36,13 +33,10 @@ class XPathUtilTest {
     @Test
     void shouldGetNodesByXPath(){
         try {
-            ;
             String xmlString = "<root><element>Content</element></root>";
-
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
             Document document = builder.parse(new InputSource(new StringReader(xmlString)));
-
             List<Node> nodeList = getNodesByXPath("//*[local-name()='element']", document);
             assertEquals("Content", nodeList.get(0).getTextContent());
         }catch(Exception e){
