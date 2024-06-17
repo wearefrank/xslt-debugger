@@ -70,7 +70,7 @@ public class XSLTReporterSetup {
             transformer.getTraceManager().addTraceListener(traceListener);
             transformer.transform(xmlSource, result);
         } catch (Exception e) {
-            writer.append(e.toString());
+            this.traceListener.getSelectedTrace().addTraceContext(String.format("\n%s", e));
         } finally {
             writer.close();
         }
@@ -93,7 +93,7 @@ public class XSLTReporterSetup {
             transformer.transform(xmlContext.getSourceObject(), result);
 
         } catch (Exception e) {
-            writer.append(e.toString());
+            this.traceListener.getSelectedTrace().addTraceContext(String.format("\n%s", e));
         } finally {
             writer.close();
         }

@@ -34,6 +34,7 @@ import java.util.Objects;
 public class SaxonTraceListener extends StandardDiagnostics implements TraceListener, LadybugTraceListener {
     @Getter
     private final Trace rootTrace = new Trace();
+    @Getter
     private Trace selectedTrace;
     //needed because the order of the methods to end a trace is reversed for some reason by saxon
     private boolean end;
