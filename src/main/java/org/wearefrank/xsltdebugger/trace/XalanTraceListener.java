@@ -32,6 +32,7 @@ public class XalanTraceListener implements TraceListenerEx2, LadybugTraceListene
 
     @Getter
     private final Trace rootTrace = new Trace();
+    @Getter
     private Trace selectedTrace;
     /**
      * This needs to be set to true if the listener is to print an event whenever a template is invoked.
