@@ -1,10 +1,10 @@
-XSLT debugger based on Ladybug that shows how an XSLT transformation is applied.
+XSLT debugger based on Ladybug that shows how an XSLT transformation is applied, supporting the debugging of XSLT transformations.
 
-This tool cooperates with https://github.com/wearefrank/xslt-debugger-webapp to be a web application that debugs XSLT stylesheets. The user can enter an XSLT and an XML document. The result is a Ladybug report that can be viewed by the UI of Ladybug, which is available as a dependency, see http://github.com/wearefrank/ladybug.
+This tool cooperates with https://github.com/wearefrank/xslt-debugger-webapp to be a web application that debugs XSLT stylesheets. The user can enter an XSLT and an XML document. The result is a Ladybug report that can be viewed by the UI of Ladybug, which is available as a dependency, see http://github.com/wearefrank/ladybug. The user can also use whether to use XSLT 1 (Xalan) or XSLT 2/3 (Saxon).
 
-The user can also use whether to use XSLT 1 (Xalan) or XSLT 2/3 (Saxon).
+WeAreFrank! hosts a server that runs this project. It can be reached at https://xslt-debugger.wearefrank.org/. Please note that the code is under development, so do not expect perfect quality yet. At this URL, the ladybug reports produced can also be viewed.
 
-WeAreFrank! hosts a server that runs this project - we do not disclose its URL yet because this tool is under development. When new commits are done on this repository or on the webapp, a Jenkins server hosted by WeAreFrank! builds the code and deploys it on the server.
+When new commits are done on this repository or on the webapp, a Jenkins server hosted by WeAreFrank! builds the code and deploys it on the server.
 
 # Implementation
 
